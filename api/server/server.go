@@ -1,8 +1,13 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/andres164/andres-castro-photography/configs"
 	"github.com/gin-gonic/gin"
@@ -31,4 +36,20 @@ func (s *Server) Serve() {
 			s.logger.Fatal().Err(err).Msg("listen")
 		}
 	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	s.logger.Info().Msg("Sutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	
+	if err := srv.Shutdown(ctx); err != nil {
+		s.logger.Fatal().Err(err).Msg("Server Shutdown")
+	}
+
+	<-ctx.Done()
+	s.logger.Info().Msg("Server shutdown timeout of 30 secods")
+	s.logger.Info().Msg("Server exiting")
 }
