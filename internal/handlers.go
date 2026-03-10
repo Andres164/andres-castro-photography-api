@@ -40,3 +40,31 @@ func CreatePhoto(c *gin.Context) {
 	DB.Create(&photo)
 	ResponseJSON(c, http.StatusOK, "Photo created succesfully", photo)
 }
+
+func GetPhotoById(c *gin.Context) {
+	var photo Photo
+	if err := DB.First(&photo, c.Param("id")).Error; err != nil {
+		ResponseJSON(c, http.StatusNotFound, "Photo not found", nil)
+		return
+	}
+	ResponseJSON(c, http.StatusOK, "Photo retrieved successfully", photo)
+}
+
+func GetPhotos(c* gin.Context) {
+	var photos []Photo
+	if err := DB.Find(&photos).Error; err != nil {
+		ResponseJSON(c, http.StatusInternalServerError, "Error while fetching photos " + err.Error(), nil)
+		return
+	}
+	ResponseJSON(c, http.StatusOK, "Photos fetched succesfully", photos)
+}
+
+func DeletePhoto(c* gin.Context) {
+	photoId := c.Param("id") // TODO: handle Bad request when id is not provided
+	var photo Photo
+	if err := DB.Delete(photo, photoId).Error; err != nil {
+		ResponseJSON(c, http.StatusInternalServerError, "Error while fetching photos " + err.Error(), nil)
+		return
+	}
+	ResponseJSON(c, http.StatusOK, "Photo deleted succesfully", photo)
+}
