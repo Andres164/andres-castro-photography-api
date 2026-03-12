@@ -68,3 +68,21 @@ func DeletePhoto(c* gin.Context) {
 	}
 	ResponseJSON(c, http.StatusOK, "Photo deleted succesfully", photo)
 }
+
+func UpdatePhoto(c* gin.Context) {
+	photoId := c.Param("id") // TODO: handle Bad request when id is not provided
+	var photo Photo
+
+	if err := DB.First(&photo, photoId).Error; err != nil {
+		ResponseJSON(c, http.StatusNotFound, "Photo not found", nil)
+		return
+	}
+
+	if err := c.ShouldBindJSON(&photo); err != nil {
+		ResponseJSON(c, http.StatusBadRequest, "Invalid input", nil)
+		return
+	}
+
+	DB.Save(&photo)
+	ResponseJSON(c, http.StatusOK, "Photo updated succesfully", photo)
+}
