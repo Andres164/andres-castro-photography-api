@@ -1,20 +1,20 @@
 package main
 
 import (
+	api "andres_castro_photography_api/internal"
+
 	"github.com/gin-gonic/gin"
 )
 
-type photo struct {
-	id int
-	url string
-	description string
-}
-
 func main() {
-	
-}
+	api.InitDB()
+	r := gin.Default()
 
-// GET /headphones 
-func getHeadphones(c *gin.Context) {
-	
+	r.GET("/photos", api.GetPhotos)
+	r.GET("/photos/:id", api.GetPhotoById)
+	r.POST("/photos", api.CreatePhoto)
+	r.PUT("/photos/:id", api.UpdatePhoto)
+	r.DELETE("/photos/:id", api.DeletePhoto)
+
+	r.Run(":8080")
 }
