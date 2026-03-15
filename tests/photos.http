@@ -1,0 +1,29 @@
+@BASE_URL = http://127.0.0.1:8080
+
+### GET ALL PHOTOS
+GET {{BASE_URL}}/photos HTTP/1.1
+
+### GET PHOTO BY ID
+GET {{BASE_URL}}/photos/2 HTTP/1.1
+
+### CREATE A PHOTO
+POST {{BASE_URL}}/photos HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "A photo for deletion",
+    "description": "This was the first photo uploaded",
+    "url": "image_2.jpg"
+}
+
+### UPDATE A PHOTO
+PATCH {{BASE_URL}}/photos/4 HTTP/1.1
+Content-Type: application/json
+
+{
+    "description": "This was a photo taken in a botanical garden, Partial update",
+    "url": "image_flower_20240118.jpg"
+}
+
+### DELETE PHOTO BY ID
+DELETE {{BASE_URL}}/photos/4 HTTP/1.1
