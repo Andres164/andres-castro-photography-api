@@ -3,6 +3,8 @@ package main
 import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/handlers"
+	"os"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,5 +18,10 @@ func main() {
 	r.PATCH("/photos/:id", handlers.UpdatePhoto)
 	r.DELETE("/photos/:id", handlers.DeletePhoto)
 
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
