@@ -2,12 +2,15 @@ package main
 
 import (
 	"andres_castro_photography_api/internal/database"
-	"andres_castro_photography_api/internal/handlers"
+	"andres_castro_photography_api/internal/models"
+	"andres_castro_photography_api/internal/schemas"
+	"context"
+	"fmt"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -15,11 +18,18 @@ func main() {
 	r := gin.Default()
 	api := humagin.New(r, huma.DefaultConfig("Andres Castro photography API", "0.1.0"))
 
-	r.GET("/photos", handlers.GetPhotos)
-	r.GET("/photos/:id", handlers.GetPhotoById)
-	r.POST("/photos", handlers.CreatePhoto)
-	r.PATCH("/photos/:id", handlers.UpdatePhoto)
-	r.DELETE("/photos/:id", handlers.DeletePhoto)
+	huma.Get(api, "/photos", func(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse, error) {
+
+	var photos []models.Photo
+
+	if err := database.DB.Find(&photos).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch photos: %w", err)
+	}
+
+	return &schemas.GetPhotosResponse{
+		Body: photos,
+	}, nil
+})
 
 	port := os.Getenv("PORT")
 	if port == "" {
