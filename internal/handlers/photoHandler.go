@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/database"
+	"andres_castro_photography_api/internal/models"
+	"andres_castro_photography_api/internal/schemas"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreatePhoto(c *gin.Context) {
@@ -28,13 +32,15 @@ func GetPhotoById(c *gin.Context) {
 	models.ResponseJSON(c, http.StatusOK, "Photo retrieved successfully", photo)
 }
 
-func GetPhotos(c* gin.Context) {
+func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse, error) {
 	var photos []models.Photo
 	if err := database.DB.Find(&photos).Error; err != nil {
-		models.ResponseJSON(c, http.StatusInternalServerError, "Error while fetching photos " + err.Error(), nil)
-		return
+		return nil, fmt.Errorf("Error al buscar fotos: %w", err)
 	}
-	models.ResponseJSON(c, http.StatusOK, "Photos fetched succesfully", photos)
+
+	return &schemas.GetPhotosResponse{
+		Body: photos,
+	}, nil
 }
 
 func DeletePhoto(c* gin.Context) {
