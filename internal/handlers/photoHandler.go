@@ -8,6 +8,7 @@ import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/schemas"
+	"github.com/danielgtaylor/huma/v2"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,13 +24,17 @@ func CreatePhoto(c *gin.Context) {
 	models.ResponseJSON(c, http.StatusOK, "Photo created succesfully", photo)
 }
 
-func GetPhotoById(c *gin.Context) {
+func GetPhotoById(ctx context.Context, input *schemas.GetPhotoByIdRequest) (*schemas.GetPhotoByIdResponse, error) {
+
 	var photo models.Photo
-	if err := database.DB.First(&photo, c.Param("id")).Error; err != nil {
-		models.ResponseJSON(c, http.StatusNotFound, "Photo not found", nil)
-		return
+
+	if err := database.DB.First(&photo, input.ID).Error; err != nil {
+		return nil, huma.Error404NotFound("Photo not found")
 	}
-	models.ResponseJSON(c, http.StatusOK, "Photo retrieved successfully", photo)
+
+	return &schemas.GetPhotoByIdResponse{
+		Body: photo,
+	}, nil
 }
 
 func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse, error) {
