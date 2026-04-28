@@ -16,6 +16,8 @@ func main() {
 	api := humagin.New(r, huma.DefaultConfig("Andres Castro photography API", "0.1.0"))
 
 	huma.Get(api, "/photos", handlers.GetPhotos)
+	huma.Get(api, "/photos{id}", handlers.GetPhotoById)
+	huma.Post(api, "/photos", handlers.CreatePhoto)
 
 	port := os.Getenv("PORT")
 	if port == "" {

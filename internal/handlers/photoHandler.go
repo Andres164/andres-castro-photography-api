@@ -13,15 +13,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreatePhoto(c *gin.Context) {
+func CreatePhoto(ctx context.Context, input *schemas.CreatePhotoRequest) (*schemas.GetPhotoByIdResponse, error) {
 	var photo models.Photo
+	newPhoto := input.Body
 
-	if err := c.ShouldBindJSON(&photo); err != nil {
-		models.ResponseJSON(c, http.StatusBadRequest, "Invalid input: " + err.Error(), nil)
-		return
-	}
+	photo.Title = newPhoto.Title
+	photo.Description = newPhoto.Description
+	photo.Url = newPhoto.Url
+
 	database.DB.Create(&photo)
-	models.ResponseJSON(c, http.StatusOK, "Photo created succesfully", photo)
+	return &schemas.GetPhotoByIdResponse{
+		Body: photo,
+	}, nil
 }
 
 func GetPhotoById(ctx context.Context, input *schemas.GetPhotoByIdRequest) (*schemas.GetPhotoByIdResponse, error) {
