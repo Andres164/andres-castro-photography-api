@@ -18,6 +18,8 @@ func main() {
 	huma.Get(api, "/photos", handlers.GetPhotos)
 	huma.Get(api, "/photos{id}", handlers.GetPhotoById)
 	huma.Post(api, "/photos", handlers.CreatePhoto)
+	huma.Delete(api, "/photos{id}", handlers.DeletePhoto)
+	huma.Patch(api, "/photos{id}", handlers.UpdatePhoto)
 
 	port := os.Getenv("PORT")
 	if port == "" {

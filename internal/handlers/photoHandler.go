@@ -2,15 +2,14 @@ package handlers
 
 import (
 	"context"
-	"fmt"
-	"net/http"
+	"errors"
 
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/schemas"
-	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
+	"gorm.io/gorm"
 )
 
 func CreatePhoto(ctx context.Context, input *schemas.CreatePhotoRequest) (*schemas.GetPhotoByIdResponse, error) {
@@ -27,7 +26,7 @@ func CreatePhoto(ctx context.Context, input *schemas.CreatePhotoRequest) (*schem
 	}, nil
 }
 
-func GetPhotoById(ctx context.Context, input *schemas.GetPhotoByIdRequest) (*schemas.GetPhotoByIdResponse, error) {
+func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoByIdResponse, error) {
 
 	var photo models.Photo
 
@@ -43,7 +42,7 @@ func GetPhotoById(ctx context.Context, input *schemas.GetPhotoByIdRequest) (*sch
 func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse, error) {
 	var photos []models.Photo
 	if err := database.DB.Find(&photos).Error; err != nil {
-		return nil, fmt.Errorf("Error al buscar fotos: %w", err)
+		return nil, huma.Error500InternalServerError("Error al buscar fotos: %w", err)
 	}
 
 	return &schemas.GetPhotosResponse{
@@ -51,30 +50,48 @@ func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse
 	}, nil
 }
 
-func DeletePhoto(c* gin.Context) {
-	photoId := c.Param("id") // TODO: handle Bad request when id is not provided
+func DeletePhoto(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoByIdResponse, error) {
 	var photo models.Photo
-	if err := database.DB.Delete(&photo, photoId).Error; err != nil {
-		models.ResponseJSON(c, http.StatusInternalServerError, "Error while fetching photos " + err.Error(), nil)
-		return
+	if err := database.DB.Delete(&photo, input.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("Foto no encontrada");
+		}
+
+		return nil, huma.Error500InternalServerError("Error al eliminar la foto: %w", err)
 	}
-	models.ResponseJSON(c, http.StatusOK, "Photo deleted succesfully", photo)
+
+	response := &schemas.GetPhotoByIdResponse{
+		Body: photo,
+	}
+	return response, nil;
 }
 
-func UpdatePhoto(c* gin.Context) {
-	photoId := c.Param("id") // TODO: handle Bad request when id is not provided
+func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas.GetPhotoByIdResponse, error) {
 	var photo models.Photo
 
-	if err := database.DB.First(&photo, photoId).Error; err != nil {
-		models.ResponseJSON(c, http.StatusNotFound, "Photo not found", nil)
-		return
+	if err := database.DB.First(&photo, input.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("Foto no encontrada");
+		}
+
+		return nil, huma.Error500InternalServerError("Error al actualizar foto: %w", err)
 	}
 
-	if err := c.ShouldBindJSON(&photo); err != nil {
-		models.ResponseJSON(c, http.StatusBadRequest, "Invalid input", nil)
-		return
+	if input.Body.Title != nil {
+		photo.Title = *input.Body.Title
+	}
+	if input.Body.Description != nil {
+		photo.Description = *input.Body.Description
+	}
+	if input.Body.Url != nil {
+		photo.Url = *input.Body.Url
 	}
 
-	database.DB.Save(&photo)
-	models.ResponseJSON(c, http.StatusOK, "Photo updated succesfully", photo)
+	if err := database.DB.Save(&photo).Error; err != nil {
+		return nil, huma.Error500InternalServerError("Error al actualizar foto: %w", err)
+	}
+
+	return &schemas.GetPhotoByIdResponse{
+		Body: photo,
+	}, nil
 }

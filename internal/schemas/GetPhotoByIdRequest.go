@@ -1,5 +1,5 @@
 package schemas
 
-type GetPhotoByIdRequest struct {
+type PhotoIdInput struct {
 	ID uint `path:"id"`
 }
