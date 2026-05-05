@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"context"
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/schemas"
+	"context"
+	"fmt"
 )
 
 func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.UserOutput, error) {
@@ -16,10 +17,15 @@ func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.U
 	user.Password = newUser.Password
 	user.Role = newUser.Role
 
-	database.DB.Create(&user)
+	if err := database.DB.Create(&user).Error; err != nil {
+		return nil, fmt.Errorf("Error al crear usuario: %w", err)
+	}
+	
 	return &schemas.UserOutput{
-		Body: struct{
-			Emai
+		Body: schemas.UserResponse{
+			Email:    user.Email,
+			Username: user.Username,
+			Role:     user.Role,
 		},
 	}, nil
 }
