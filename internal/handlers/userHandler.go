@@ -5,9 +5,11 @@ import (
 	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/schemas"
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
+	"gorm.io/gorm"
 )
 
 // TEST
@@ -52,4 +54,43 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
     return &schemas.GetUsersOutput{
         Body: responses,
     }, nil
+}
+
+func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.UserOutput, error) {
+	var user models.User
+
+	if err := database.DB.First(&user, input.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("Usuario no encontrado");
+		}
+
+		return nil, huma.Error500InternalServerError("Error al actualizar usuario: %w", err)
+	}
+
+	if input.Body.Email != nil {
+		user.Email = *input.Body.Email
+	}
+	if input.Body.Password != nil {
+		user.Password = *input.Body.Password
+	}
+	if input.Body.Role != nil {
+		user.Role = *input.Body.Role
+	}
+	if input.Body.Username != nil {
+		user.Username = *input.Body.Username
+	}
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		return nil, huma.Error500InternalServerError("Error al actualizar usuario: %w", err)
+	}
+
+	updatedUser := &schemas.UserResponse{
+		Email: user.Email,
+		Username: user.Username,
+		Role: user.Role,
+	}
+
+	return &schemas.UserOutput{
+		Body: *updatedUser,
+	}, nil
 }
