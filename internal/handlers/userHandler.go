@@ -56,6 +56,27 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
     }, nil
 }
 
+func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserOutput, error) {
+	var user models.User
+	if err := database.DB.Delete(&user, input.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("Usuario no encontrado")
+		}
+
+		return nil, huma.Error500InternalServerError("Error al eliminar usuario: %w", err)
+	}
+
+	deletedUserResponse := schemas.UserResponse{
+		Email: user.Email,
+		Username: user.Username,
+		Role: user.Role,
+	}
+
+	return &schemas.UserOutput{
+		Body: deletedUserResponse,
+	}, nil
+}
+
 func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.UserOutput, error) {
 	var user models.User
 
