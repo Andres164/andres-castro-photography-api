@@ -21,6 +21,12 @@ func main() {
 	huma.Delete(api, "/photos{id}", handlers.DeletePhoto)
 	huma.Patch(api, "/photos{id}", handlers.UpdatePhoto)
 
+	// USERS
+	huma.Get(api, "/users", handlers.GetUsers)
+	huma.Post(api, "/users", handlers.CreateUser)
+	huma.Patch(api, "/users/{id}", handlers.UpdateUser)
+	huma.Delete(api, "/users/{id}", handlers.DeleteUser)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

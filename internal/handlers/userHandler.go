@@ -28,6 +28,7 @@ func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.U
 	
 	return &schemas.UserOutput{
 		Body: schemas.UserResponse{
+			ID:    user.ID,
 			Email:    user.Email,
 			Username: user.Username,
 			Role:     user.Role,
@@ -45,6 +46,7 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
     responses := make([]schemas.UserResponse, len(users))
     for i, user := range users {
         responses[i] = schemas.UserResponse{
+            ID:    user.ID,
             Email:    user.Email,
             Username: user.Username,
             Role:     user.Role,
@@ -67,6 +69,7 @@ func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserO
 	}
 
 	deletedUserResponse := schemas.UserResponse{
+		ID: user.ID,
 		Email: user.Email,
 		Username: user.Username,
 		Role: user.Role,
@@ -106,6 +109,7 @@ func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.U
 	}
 
 	updatedUser := &schemas.UserResponse{
+		ID: user.ID,
 		Email: user.Email,
 		Username: user.Username,
 		Role: user.Role,
