@@ -60,11 +60,16 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
 
 func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserOutput, error) {
 	var user models.User
-	if err := database.DB.Delete(&user, input.ID).Error; err != nil {
+
+	if err := database.DB.First(&user, input.ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("Usuario no encontrado")
 		}
 
+		return nil, huma.Error500InternalServerError("Error al buscar usuario para eliminar")
+	}
+
+	if err := database.DB.Delete(&user).Error; err != nil {
 		return nil, huma.Error500InternalServerError("Error al eliminar usuario: %w", err)
 	}
 
@@ -82,6 +87,13 @@ func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserO
 
 func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.UserOutput, error) {
 	var user models.User
+
+	if input.Body.Email == nil &&
+		input.Body.Username == nil &&
+		input.Body.Password == nil &&
+		input.Body.Role == nil {
+			return nil, huma.Error400BadRequest("No se incluyeron campos para actualizar")
+	}
 
 	if err := database.DB.First(&user, input.ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

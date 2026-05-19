@@ -5,9 +5,9 @@ type UpdateUserInput struct {
 	ID uint `path:"id"`
 	
 	Body struct {
-		Email    *string `json:"email" required:"false"`
-		Username *string `json:"username"`
-		Password *string `json:"password"`
-		Role     *string `json:"role"`
+		Email    *string `json:"email,omitempty"`
+		Username *string `json:"username,omitempty"`
+		Password *string `json:"password,omitempty"`
+		Role     *string `json:"role,omitempty"`
 	}
 }
