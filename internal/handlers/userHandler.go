@@ -12,7 +12,31 @@ import (
 	"gorm.io/gorm"
 )
 
-// TEST
+func LogIn(ctx context.Context, input *schemas.LogInInput) (*schemas.UserOutput, error) {
+	var user models.User
+
+	if err := database.DB.Where("email = ?", input.Body.Email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, huma.Error401Unauthorized("Usuario y/o contraseña incorrectos")
+		}
+
+		return nil, huma.Error500InternalServerError("Error al iniciar sesion: %w", err)
+	}
+
+	if user.Password != input.Body.Password {
+		return nil, huma.Error401Unauthorized("Usuario y/o contraseña incorrectos")
+	}
+
+	return &schemas.UserOutput{
+		Body: schemas.UserResponse{
+			ID: user.ID,
+			Email: user.Email,
+			Username: user.Username,
+			Role: user.Role,
+		},
+	}, nil
+}
+
 func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.UserOutput, error) {
 	var user models.User
 	newUser := input.Body

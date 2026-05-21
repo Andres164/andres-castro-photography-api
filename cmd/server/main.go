@@ -22,6 +22,7 @@ func main() {
 	huma.Patch(api, "/photos{id}", handlers.UpdatePhoto)
 
 	// USERS
+	huma.Post(api, "/users/login", handlers.LogIn)
 	huma.Get(api, "/users", handlers.GetUsers)
 	huma.Post(api, "/users", handlers.CreateUser)
 	huma.Patch(api, "/users/{id}", handlers.UpdateUser)
