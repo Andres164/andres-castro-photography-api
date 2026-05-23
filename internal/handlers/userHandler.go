@@ -4,15 +4,17 @@ import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
 	"andres_castro_photography_api/internal/schemas"
+	"andres_castro_photography_api/internal/utils"
 	"context"
 	"errors"
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-func LogIn(ctx context.Context, input *schemas.LogInInput) (*schemas.UserOutput, error) {
+func LogIn(ctx context.Context, input *schemas.LogInInput) (*schemas.LoginOutput, error) {
 	var user models.User
 
 	if err := database.DB.Where("email = ?", input.Body.Email).First(&user).Error; err != nil {
@@ -23,16 +25,22 @@ func LogIn(ctx context.Context, input *schemas.LogInInput) (*schemas.UserOutput,
 		return nil, huma.Error500InternalServerError("Error al iniciar sesion: %w", err)
 	}
 
-	if user.Password != input.Body.Password {
+	err := bcrypt.CompareHashAndPassword(
+		[]byte(input.Body.Password),
+		[]byte(user.Password),
+	)
+	if err != nil {
 		return nil, huma.Error401Unauthorized("Usuario y/o contraseña incorrectos")
 	}
 
-	return &schemas.UserOutput{
-		Body: schemas.UserResponse{
-			ID: user.ID,
-			Email: user.Email,
-			Username: user.Username,
-			Role: user.Role,
+	token, err := utils.GenerateToken(user.ID, user.Role)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Error al iniciar sesion: %w", err)
+	}
+
+	return &schemas.LoginOutput{
+		Body: schemas.LoginResponse{
+			Token: token,
 		},
 	}, nil
 }
@@ -41,13 +49,23 @@ func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.U
 	var user models.User
 	newUser := input.Body
 
+	if len(newUser.Password) < 8 {
+		return nil, huma.Error400BadRequest("La contraseña debe contener al menos 8 caracteres")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Error al crear usuario: %w", err)
+	}
+
 	user.Email = newUser.Email
 	user.Username = newUser.Username
-	user.Password = newUser.Password
+	user.Password = string(hashedPassword)
 	user.Role = newUser.Role
 
 	if err := database.DB.Create(&user).Error; err != nil {
-		return nil, fmt.Errorf("Error al crear usuario: %w", err)
+		return nil, huma.Error500InternalServerError("Error al crear usuario: %w", err)
 	}
 	
 	return &schemas.UserOutput{
