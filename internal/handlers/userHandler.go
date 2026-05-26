@@ -7,7 +7,6 @@ import (
 	"andres_castro_photography_api/internal/utils"
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -26,8 +25,8 @@ func LogIn(ctx context.Context, input *schemas.LogInInput) (*schemas.LoginOutput
 	}
 
 	err := bcrypt.CompareHashAndPassword(
-		[]byte(input.Body.Password),
 		[]byte(user.Password),
+		[]byte(input.Body.Password),
 	)
 	if err != nil {
 		return nil, huma.Error401Unauthorized("Usuario y/o contraseña incorrectos")
