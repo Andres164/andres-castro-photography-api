@@ -1,47 +1,60 @@
 package middleware
 
 import (
+	"context"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/golang-jwt/jwt/v5"
+
+	"andres_castro_photography_api/internal/utils"
 )
 
-var jwtSecret = []byte("super-secret-key")
+type contextKey string
 
-func AuthMiddleware(ctx huma.Context, next func(huma.Context)) {
+const (
+	UserIDKey contextKey = "user_id"
+	RoleKey   contextKey = "role"
+)
+
+func AuthMiddleware(api huma.API, ctx huma.Context, next func(huma.Context)) {
 
 	authHeader := ctx.Header("Authorization")
 
 	if authHeader == "" {
-		huma.WriteErr(ctx, huma.Error401Unauthorized("Missing Authorization header"))
+		huma.WriteErr(api, ctx, 401, "Missing Authorization header")
 		return
 	}
 
 	parts := strings.Split(authHeader, " ")
+
 	if len(parts) != 2 || parts[0] != "Bearer" {
-		huma.WriteErr(ctx, huma.Error401Unauthorized("Invalid Authorization format"))
+		huma.WriteErr(api, ctx, 401, "Invalid Authorization format")
 		return
 	}
 
 	tokenString := parts[1]
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return utils.JwtSecret, nil
 	})
 
 	if err != nil || !token.Valid {
-		huma.WriteErr(ctx, huma.Error401Unauthorized("Invalid token"))
+		huma.WriteErr(api, ctx, 401, "Invalid token")
 		return
 	}
 
-	// Extract claims
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-
-		// Store in context
-		ctx.Set("user_id", claims["user_id"])
-		ctx.Set("role", claims["role"])
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		huma.WriteErr(api, ctx, 401, "Invalid token claims")
+		return
 	}
+
+	// Add values to request context
+	requestCtx := context.WithValue(ctx.Context(), UserIDKey, claims["user_id"])
+	requestCtx = context.WithValue(requestCtx, RoleKey, claims["role"])
+
+	ctx = huma.WithContext(ctx, requestCtx)
 
 	next(ctx)
 }
