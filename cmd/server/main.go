@@ -3,6 +3,7 @@ package main
 import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/handlers"
+	"andres_castro_photography_api/internal/middleware"
 	"os"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -15,18 +16,21 @@ func main() {
 	r := gin.Default()
 	api := humagin.New(r, huma.DefaultConfig("Andres Castro photography API", "0.1.0"))
 
+	protectedGroup := huma.NewGroup(api)
+	protectedGroup.UseMiddleware(middleware.AuthMiddleware(api))
+
 	huma.Get(api, "/photos", handlers.GetPhotos)
-	huma.Get(api, "/photos{id}", handlers.GetPhotoById)
-	huma.Post(api, "/photos", handlers.CreatePhoto)
-	huma.Delete(api, "/photos{id}", handlers.DeletePhoto)
-	huma.Patch(api, "/photos{id}", handlers.UpdatePhoto)
+	huma.Get(protectedGroup, "/photos{id}", handlers.GetPhotoById)
+	huma.Post(protectedGroup, "/photos", handlers.CreatePhoto)
+	huma.Delete(protectedGroup, "/photos{id}", handlers.DeletePhoto)
+	huma.Patch(protectedGroup, "/photos{id}", handlers.UpdatePhoto)
 
 	// USERS
 	huma.Post(api, "/users/login", handlers.LogIn)
-	huma.Get(api, "/users", handlers.GetUsers)
+	huma.Get(protectedGroup, "/users", handlers.GetUsers)
 	huma.Post(api, "/users", handlers.CreateUser)
-	huma.Patch(api, "/users/{id}", handlers.UpdateUser)
-	huma.Delete(api, "/users/{id}", handlers.DeleteUser)
+	huma.Patch(protectedGroup, "/users/{id}", handlers.UpdateUser)
+	huma.Delete(protectedGroup, "/users/{id}", handlers.DeleteUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {

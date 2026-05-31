@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -17,44 +16,47 @@ const (
 	RoleKey   contextKey = "role"
 )
 
-func AuthMiddleware(api huma.API, ctx huma.Context, next func(huma.Context)) {
+func AuthMiddleware(api huma.API) func(huma.Context, func(huma.Context)) {
 
-	authHeader := ctx.Header("Authorization")
+	
 
-	if authHeader == "" {
-		huma.WriteErr(api, ctx, 401, "Missing Authorization header")
-		return
+	return func(ctx huma.Context, next func(huma.Context)) {
+
+		authHeader := ctx.Header("Authorization")
+
+		if authHeader == "" {
+			huma.WriteErr(api, ctx, 401, "Missing Authorization header")
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			huma.WriteErr(api, ctx, 401, "Invalid Authorization format")
+			return
+		}
+
+		tokenString := parts[1]
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return utils.JwtSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			huma.WriteErr(api, ctx, 401, "Invalid token")
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			huma.WriteErr(api, ctx, 401, "Invalid token claims")
+			return
+		}
+
+		// Add values to request context
+		ctx = huma.WithValue(ctx, UserIDKey, claims["user_id"])
+		ctx = huma.WithValue(ctx, RoleKey, claims["role"])
+
+		next(ctx)
 	}
-
-	parts := strings.Split(authHeader, " ")
-
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		huma.WriteErr(api, ctx, 401, "Invalid Authorization format")
-		return
-	}
-
-	tokenString := parts[1]
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return utils.JwtSecret, nil
-	})
-
-	if err != nil || !token.Valid {
-		huma.WriteErr(api, ctx, 401, "Invalid token")
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		huma.WriteErr(api, ctx, 401, "Invalid token claims")
-		return
-	}
-
-	// Add values to request context
-	requestCtx := context.WithValue(ctx.Context(), UserIDKey, claims["user_id"])
-	requestCtx = context.WithValue(requestCtx, RoleKey, claims["role"])
-
-	ctx = huma.WithContext(ctx, requestCtx)
-
-	next(ctx)
 }
