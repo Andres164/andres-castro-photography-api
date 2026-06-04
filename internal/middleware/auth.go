@@ -18,8 +18,6 @@ const (
 
 func AuthMiddleware(api huma.API) func(huma.Context, func(huma.Context)) {
 
-	
-
 	return func(ctx huma.Context, next func(huma.Context)) {
 
 		authHeader := ctx.Header("Authorization")

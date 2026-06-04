@@ -14,3 +14,7 @@ Improve refactoring abilities
 Implement a new feature thats going to improve the app
 
 - Implement image uploading
+
+## I make secure apps
+
+- Add cookie based authentication
