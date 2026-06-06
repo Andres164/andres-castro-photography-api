@@ -4,6 +4,7 @@ import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/handlers"
 	"andres_castro_photography_api/internal/middleware"
+	"net/http"
 	"os"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -13,8 +14,19 @@ import (
 
 func main() {
 	database.InitDB()
+
 	r := gin.Default()
-	api := humagin.New(r, huma.DefaultConfig("Andres Castro photography API", "0.1.0"))
+	config := huma.DefaultConfig("Andres Castro photography API", "0.1.0")
+	config.Components.SecuritySchemes = map[string]*huma.SecurityScheme {
+		"bearerAuth": {
+			Type: "http",
+			Name: "Authorization",
+			In: "header",
+			Scheme: "bearer",
+			BearerFormat: "JWT",
+		},
+	}
+	api := humagin.New(r, config)
 
 	protectedGroup := huma.NewGroup(api)
 	protectedGroup.UseMiddleware(middleware.AuthMiddleware(api))
@@ -24,6 +36,27 @@ func main() {
 		middleware.AuthMiddleware(api),
 		middleware.RequireAdmin(api),
 	)
+
+	// Users
+	huma.Register(adminGroup, huma.Operation{
+		OperationID: "get-users",
+		Method: http.MethodGet,
+		Path: "/users",
+		Security: ,
+	}, handlers.GetPhotos)
+
+	// Photos
+	huma.Register(api, huma.Operation{
+		OperationID: "get-photos",
+		Method: http.MethodGet,
+		Path: "/photos",
+	}, handlers.GetPhotos)
+
+	huma.Register(protectedGroup, huma.Operation{
+		OperationID: "get-photo-by-id",
+		Method: http.MethodGet,
+		Path: "/photos/{id}",
+	}, handlers.GetPhotoById)
 
 	huma.Get(api, "/photos", handlers.GetPhotos)
 	huma.Get(protectedGroup, "/photos{id}", handlers.GetPhotoById)
