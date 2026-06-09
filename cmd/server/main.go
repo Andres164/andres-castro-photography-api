@@ -26,6 +26,12 @@ func main() {
 			BearerFormat: "JWT",
 		},
 	}
+	config.Security = []map[string][]string{
+		{
+			"bearerAuth": {},
+		},
+	}
+	
 	api := humagin.New(r, config)
 
 	protectedGroup := huma.NewGroup(api)
@@ -42,8 +48,7 @@ func main() {
 		OperationID: "get-users",
 		Method: http.MethodGet,
 		Path: "/users",
-		Security: ,
-	}, handlers.GetPhotos)
+	}, handlers.GetUsers)
 
 	// Photos
 	huma.Register(api, huma.Operation{
@@ -58,15 +63,12 @@ func main() {
 		Path: "/photos/{id}",
 	}, handlers.GetPhotoById)
 
-	huma.Get(api, "/photos", handlers.GetPhotos)
-	huma.Get(protectedGroup, "/photos{id}", handlers.GetPhotoById)
 	huma.Post(adminGroup, "/photos", handlers.CreatePhoto)
-	huma.Delete(adminGroup, "/photos{id}", handlers.DeletePhoto)
-	huma.Patch(adminGroup, "/photos{id}", handlers.UpdatePhoto)
+	huma.Delete(adminGroup, "/photos/{id}", handlers.DeletePhoto)
+	huma.Patch(adminGroup, "/photos/{id}", handlers.UpdatePhoto)
 
 	// USERS
 	huma.Post(api, "/users/login", handlers.LogIn)
-	huma.Get(protectedGroup, "/users", handlers.GetUsers)
 	huma.Post(api, "/users", handlers.CreateUser)
 	huma.Patch(adminGroup, "/users/{id}", handlers.UpdateUser)
 	huma.Delete(adminGroup, "/users/{id}", handlers.DeleteUser)
