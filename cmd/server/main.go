@@ -31,6 +31,9 @@ func main() {
 			"bearerAuth": {},
 		},
 	}
+
+	// Gin middleware
+	r.Use(middleware.SecurityHeaders())
 	
 	api := humagin.New(r, config)
 
