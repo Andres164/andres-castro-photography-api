@@ -4,6 +4,10 @@ import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/handlers"
 	"andres_castro_photography_api/internal/middleware"
+	"andres_castro_photography_api/internal/services"
+	"context"
+	"log"
+
 	"net/http"
 	"os"
 
@@ -16,6 +20,18 @@ func main() {
 	database.InitDB()
 
 	r := gin.Default()
+
+	backgroundCtx := context.Background()
+	storageClient, err := services.NewStorageClient(backgroundCtx)
+	if(err != nil) {
+		log.Fatal(err)
+	}
+
+	storageService := services.NewStorageService(storageClient, os.Getenv("BUCKET_NAME"))
+	if err := storageService.HealthCheck(backgroundCtx); err != nil {
+		log.Fatal(err)
+	}
+
 	config := huma.DefaultConfig("Andres Castro photography API", "0.1.0")
 	config.Components.SecuritySchemes = map[string]*huma.SecurityScheme {
 		"bearerAuth": {
