@@ -46,7 +46,7 @@ func (s *StorageService) Upload(
 		return "", err
 	}
 
-	objectUrl := "http://url/photos/" + objectName
+	objectUrl := "photos/" + objectName
 
 	return objectUrl, nil
 }
