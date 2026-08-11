@@ -31,6 +31,8 @@ func main() {
 	if err := storageService.HealthCheck(backgroundCtx); err != nil {
 		log.Fatal(err)
 	}
+	photoService := services.NewPhotoService(storageService)
+	photoHandler := handlers.NewPhotoHandler(photoService)
 
 	config := huma.DefaultConfig("Andres Castro photography API", "0.1.0")
 	config.Components.SecuritySchemes = map[string]*huma.SecurityScheme {
@@ -82,7 +84,7 @@ func main() {
 		Path: "/photos/{id}",
 	}, handlers.GetPhotoById)
 
-	huma.Post(adminGroup, "/photos", handlers.CreatePhoto)
+	huma.Post(adminGroup, "/photos", photoHandler.CreatePhoto)
 	huma.Delete(adminGroup, "/photos/{id}", handlers.DeletePhoto)
 	huma.Patch(adminGroup, "/photos/{id}", handlers.UpdatePhoto)
 

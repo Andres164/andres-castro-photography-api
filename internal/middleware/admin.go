@@ -1,9 +1,10 @@
 package middleware
 
 import (
-    "net/http"
+	"net/http"
+	"strings"
 
-    "github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2"
 )
 
 func RequireAdmin(api huma.API) func(huma.Context, func(huma.Context)) {
@@ -22,6 +23,7 @@ func RequireAdmin(api huma.API) func(huma.Context, func(huma.Context)) {
             return
         }
 
+		role = strings.ToLower(role)
         if role != "admin" {
             huma.WriteErr(
                 api,

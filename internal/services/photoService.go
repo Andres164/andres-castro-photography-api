@@ -9,7 +9,6 @@ import (
 
 type PhotoService struct {
 	storage *StorageService
-
 }
 
 func NewPhotoService(storage *StorageService) *PhotoService {

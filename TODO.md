@@ -1,20 +1,17 @@
 # TODO
 
-## Learn a new technice
+## (DONE!) Upload a photo through the Handler
 
-## Im a Software engenieer, I build clean, scalable code
+## Return the image bytes
 
-Improve refactoring abilities
+## Return the re-seized image
 
-- Separation of concerns, HTTP handling logic should be separate from buissines logic.
-    **Build a service layer** to separate buissines logic from HTTP handling logic
+## Return re-sized and watermarked image
 
-## Im a builder, I like building new and exiting stuff
+## Make a cart
 
-Implement a new feature thats going to improve the app
+## Shoping cart CRUD
 
-- Implement image uploading
+## Cart checkout
 
-## I make secure apps
-
-- Add cookie based authentication
+## Return Full image if bought
