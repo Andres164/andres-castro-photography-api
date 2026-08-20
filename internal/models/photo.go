@@ -6,7 +6,7 @@ import (
 
 type Photo struct {
 	gorm.Model
-	Title string `json:"title"`
+	Title       string `json:"title"`
 	Description string `json:"description"`
-	Url string `json:"url"`
+	StorageKey  string `json:"storage_key"`
 }

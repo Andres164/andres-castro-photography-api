@@ -100,7 +100,7 @@ func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas
 		photo.Description = *input.Body.Description
 	}
 	if input.Body.Url != nil {
-		photo.Url = *input.Body.Url
+		photo.StorageKey = *input.Body.Url
 	}
 
 	if err := database.DB.Save(&photo).Error; err != nil {

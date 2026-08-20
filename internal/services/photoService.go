@@ -18,8 +18,8 @@ func NewPhotoService(storage *StorageService) *PhotoService {
 }
 
 func (s *PhotoService) CreatePhoto(
-	ctx context.Context, 
-	reader io.Reader, 
+	ctx context.Context,
+	reader io.Reader,
 	photo *models.Photo,
 ) (*models.Photo, error) {
 	// Receive uploaded file
@@ -30,7 +30,7 @@ func (s *PhotoService) CreatePhoto(
 		return nil, err
 	}
 	// Save to PostgreSQL
-	photo.Url = url
+	photo.StorageKey = url
 	// Return Photo
 	if err := database.DB.Create(photo).Error; err != nil {
 		return nil, err
