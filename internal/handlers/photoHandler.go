@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
@@ -42,7 +43,7 @@ func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePho
 	}, nil
 }
 
-func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoByIdResponse, error) {
+func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoOutput, error) {
 
 	var photo models.Photo
 
@@ -50,19 +51,37 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 		return nil, huma.Error404NotFound("Photo not found")
 	}
 
-	return &schemas.GetPhotoByIdResponse{
-		Body: photo,
+	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	photoResponse := &schemas.GetPhotoResponse{
+		ID:          photo.ID,
+		Title:       photo.Title,
+		Description: photo.Description,
+		ImageUri:    imageUri,
+	}
+
+	return &schemas.GetPhotoOutput{
+		Body: *photoResponse,
 	}, nil
 }
 
-func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosResponse, error) {
+func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, error) {
 	var photos []models.Photo
 	if err := database.DB.Find(&photos).Error; err != nil {
 		return nil, huma.Error500InternalServerError("Error al buscar fotos: %w", err)
 	}
 
-	return &schemas.GetPhotosResponse{
-		Body: photos,
+	var photoResponseCollection []schemas.GetPhotoResponse
+	for _, p := range photos {
+		imageUri := fmt.Sprintf("photo/%d/image", p.ID)
+		photoResponseCollection = append(photoResponseCollection, schemas.GetPhotoResponse{
+			ID: p.ID,
+			Title: p.Title,
+			Description: p.Description,
+			ImageUri: imageUri,
+		})
+	}
+	return &schemas.GetPhotosOutput{
+		Body: photoResponseCollection,
 	}, nil
 }
 
