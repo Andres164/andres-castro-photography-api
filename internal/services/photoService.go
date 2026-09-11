@@ -38,3 +38,13 @@ func (s *PhotoService) CreatePhoto(
 
 	return photo, nil
 }
+
+func (s *PhotoService) GetPhotoImage(
+	ctx context.Context,
+	id uint,
+) (io.ReadCloser, string, error) {
+	var photo models.Photo
+	
+
+	if err :=
+}

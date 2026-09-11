@@ -50,3 +50,17 @@ func (s *StorageService) Upload(
 
 	return objectUrl, nil
 }
+
+func (s *StorageService) Get(
+	ctx context.Context,
+	objectName string,
+) (io.ReadCloser, error) {
+	objectH := s.bucket.Object(objectName)
+
+	reader, err := objectH.NewReader(ctx) // Change to WithJSONReads
+	if err != nil {
+		return nil, err
+	}
+
+	return reader, nil
+}
