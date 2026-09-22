@@ -46,5 +46,14 @@ func (s *PhotoService) GetPhotoImage(
 	var photo models.Photo
 	
 
-	if err :=
+	if err := database.DB.First(&photo, id).Error; err != nil {
+		return nil, "", err
+	}
+
+	reader, err := s.storage.Get(ctx, photo.StorageKey)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return reader, photo.ContentType, nil
 }

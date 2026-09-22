@@ -9,4 +9,5 @@ type Photo struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	StorageKey  string `json:"storage_key"`
+	ContentType string `json:"content_type"`
 }

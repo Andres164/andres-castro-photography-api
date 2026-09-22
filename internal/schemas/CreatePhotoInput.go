@@ -7,5 +7,6 @@ type CreatePhotoInput struct {
 		File        huma.FormFile `form:"file" required:"true"`
 		Title       string        `form:"title" required:"true"`
 		Description string        `form:"description"`
+		ContentType string `json:"content_type"`
 	}]
 }

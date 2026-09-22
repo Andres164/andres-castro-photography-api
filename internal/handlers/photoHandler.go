@@ -30,6 +30,7 @@ func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePho
 	photo := &models.Photo{
 		Title:       form.Title,
 		Description: form.Description,
+		ContentType: form.ContentType,
 	}
 
 	createdPhoto, err := h.service.CreatePhoto(ctx, form.File, photo)
@@ -57,6 +58,7 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 		Title:       photo.Title,
 		Description: photo.Description,
 		ImageUri:    imageUri,
+		ContentType: photo.ContentType,
 	}
 
 	return &schemas.GetPhotoOutput{
@@ -78,6 +80,7 @@ func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, 
 			Title: p.Title,
 			Description: p.Description,
 			ImageUri: imageUri,
+			ContentType: p.ContentType,
 		})
 	}
 	return &schemas.GetPhotosOutput{
@@ -120,6 +123,9 @@ func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas
 	}
 	if input.Body.Url != nil {
 		photo.StorageKey = *input.Body.Url
+	}
+	if input.Body.ContentType != nil {
+		photo.ContentType = *input.Body.ContentType
 	}
 
 	if err := database.DB.Save(&photo).Error; err != nil {
