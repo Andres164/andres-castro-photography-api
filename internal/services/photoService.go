@@ -44,7 +44,6 @@ func (s *PhotoService) GetPhotoImage(
 	id uint,
 ) (io.ReadCloser, string, error) {
 	var photo models.Photo
-	
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
 		return nil, "", err

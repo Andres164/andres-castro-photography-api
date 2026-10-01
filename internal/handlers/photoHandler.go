@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
@@ -24,7 +25,7 @@ func NewPhotoHandler(photoService *services.PhotoService) *PhotoHandler {
 	}
 }
 
-func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePhotoInput) (*schemas.GetPhotoByIdResponse, error) {
+func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePhotoInput) (*schemas.GetPhotoOutput, error) {
 	form := input.RawBody.Data()
 
 	photo := &models.Photo{
@@ -39,8 +40,17 @@ func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePho
 		return nil, huma.Error500InternalServerError("Error al crear la foto", err)
 	}
 
-	return &schemas.GetPhotoByIdResponse{
-		Body: *createdPhoto,
+	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	photoResponse := &schemas.GetPhotoResponse{
+		ID:          createdPhoto.ID,
+		Title:       createdPhoto.Title,
+		Description: createdPhoto.Description,
+		ImageUri:    imageUri,
+		ContentType: createdPhoto.ContentType,
+	}
+
+	return &schemas.GetPhotoOutput{
+		Body: *photoResponse,
 	}, nil
 }
 
@@ -64,6 +74,30 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 	return &schemas.GetPhotoOutput{
 		Body: *photoResponse,
 	}, nil
+}
+
+func (h* PhotoHandler) GetPhotoImage(
+    ctx context.Context,
+    input *schemas.PhotoIdInput,
+) (*huma.StreamResponse, error) {
+
+    reader, contentType, err := h.service.GetPhotoImage(ctx, input.ID)
+    if err != nil {
+        return nil, err
+    }
+
+    return &huma.StreamResponse{
+        Body: func(humaCtx huma.Context) {
+            defer reader.Close()
+
+            humaCtx.SetHeader("Content-Type", contentType)
+
+            _, err := io.Copy(humaCtx.BodyWriter(), reader)
+            if err != nil {
+                return
+            }
+        },
+    }, nil
 }
 
 func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, error) {
