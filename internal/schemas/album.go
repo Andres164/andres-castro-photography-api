@@ -22,3 +22,34 @@ type GetAlbumOutput struct {
 type GetAlbumsOutput struct {
 	Body []AlbumSummaryResponse
 }
+
+type CreateAlbumRequest struct {
+	Title string `json:"title" minlength:"1" required:"true"`
+	Description string `json:"description"`
+}
+
+type CreateAlbumInput struct {
+	Body CreateAlbumRequest
+}
+
+type CreateAlbumOutput struct {
+	Body AlbumDetailedResponse
+}
+
+type AddAlbumPhotosRequest struct {
+    PhotoIDs []uint `json:"photoIds" minItems:"1" required:"true"`
+}
+
+type AddAlbumPhotosInput struct {
+	ID uint `path:"id"`
+	Body AddAlbumPhotosRequest
+}
+
+type SetAlbumCoverRequest struct {
+    PhotoID uint `json:"photoId" required:"true"`
+}
+
+type SetAlbumCoverInput struct {
+    ID   uint `path:"id"`
+    Body SetAlbumCoverRequest
+}
