@@ -56,3 +56,37 @@ func (s *PhotoService) GetPhotoImage(
 
 	return reader, photo.ContentType, nil
 }
+
+func (s *PhotoService) GetPhotoById(
+	ctx context.Context,
+	id uint,
+) (*models.Photo, error) {
+	var photo *models.Photo
+
+	if err := database.DB.First(&photo, id).Error; err != nil {
+		return nil, err
+	}
+
+	return photo, nil
+}
+
+func (s *PhotoService) DoPhotosExists(
+	ctx context.Context,
+	photoIDs []uint,
+) (bool, error) {
+	if len(photoIDs) == 0 {
+        return true, nil
+    }
+
+	var count int64
+	err := database.DB.
+		Model(&models.Photo{}).
+		Where("id IN ?", photoIDs).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count == int64(len(photoIDs)), nil
+}

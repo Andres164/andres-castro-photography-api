@@ -15,17 +15,17 @@
 - Define Album model (DONE!)
 - Define Album Photo relation (DONE!)
 - Create album
-  - Photo Service createAlbum()
-  - Photo handler createAlbum()
+  - Album Service createAlbum()
+  - Album handler createAlbum()
 - Add photo to album
-  - Photo Service addPhotos()
-  - Photo handler addPhotos()
+  - Album Service addPhotos()
+  - Album handler addPhotos()
 - Get all albums
-  - Photo Service getAlbums()
-  - Photo handler getAlbums()
+  - Album Service getAlbums()
+  - Album handler getAlbums()
 - Get album by id
-  - Photo Service getAlbum()
-  - Photo handler getAlbum()
+  - Album Service getAlbum()
+  - Album handler getAlbum()
 
 ## Clean Schemas delete the ones that aren't used anymore
 
