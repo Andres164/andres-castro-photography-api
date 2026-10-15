@@ -33,7 +33,7 @@ type CreateAlbumInput struct {
 }
 
 type CreateAlbumOutput struct {
-	Body AlbumDetailedResponse
+	Body AlbumSummaryResponse
 }
 
 type AddAlbumPhotosRequest struct {

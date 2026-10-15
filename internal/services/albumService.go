@@ -35,7 +35,9 @@ func (s *AlbumService) AddPhotos(
 	albumID uint,
 	photoIDs []uint,
 ) (error) {
-	// Validate photo IDs
+	// TODO: Remove duplicate photo IDs
+
+	// Validate photo IDs exists
 	doPhotosExists, err := s.photoService.DoPhotosExists(ctx, photoIDs)
 	if err != nil {
 		return err
@@ -43,6 +45,8 @@ func (s *AlbumService) AddPhotos(
 	if !doPhotosExists {
 		return ErrPhotosNotFound
 	}
+
+	// TODO: Remove Photo IDs which already exist in the Album
 	
 	return database.DB.Transaction(func(tx *gorm.DB) error {
         var album models.Album
