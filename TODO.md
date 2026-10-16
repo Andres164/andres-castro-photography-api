@@ -14,13 +14,13 @@
 
 - Define Album model (DONE!)
 - Define Album Photo relation (DONE!)
-- Create album
-  - Album Service createAlbum()
-  - Album handler createAlbum()
-- Add photo to album
-  - Album Service addPhotos()
-  - Album handler addPhotos()
-- Get all albums
+- Create album (DONE!)
+  - Album Service createAlbum() (DONE!)
+  - Album handler createAlbum() (DONE!)
+- Add photo to album (DONE!)
+  - Album Service addPhotos() (DONE!)
+  - Album handler addPhotos() (DONE!)
+- Get all albums (🚧 In Progress...)
   - Album Service getAlbums()
   - Album handler getAlbums()
 - Get album by id

@@ -43,19 +43,19 @@ func (h *AlbumHandler) CreateAlbum(ctx context.Context, input *schemas.CreateAlb
 	}, nil
 }
 
-func (h *AlbumHandler) AddPhotos(ctx context.Context, input *schemas.AddAlbumPhotosInput) error {
+func (h *AlbumHandler) AddPhotos(ctx context.Context, input *schemas.AddAlbumPhotosInput) (*struct{}, error) {
 	err := h.service.AddPhotos(ctx, input.ID, input.Body.PhotoIDs)
 
 	if err != nil {
 		if errors.Is(err, services.ErrPhotosNotFound) {
-			return huma.Error404NotFound("Una o mas fotos no existen", err)
+			return nil, huma.Error404NotFound("Una o mas fotos no existen", err)
 		} 
 		if errors.Is(err, services.ErrAlbumNotFound) {
-			return huma.Error404NotFound("El album que quiere actualizar no existe", err)
+			return nil, huma.Error404NotFound("El album que quiere actualizar no existe", err)
 		}
 
-		return huma.Error500InternalServerError("Error al agregar fotos al album", err)
+		return nil, huma.Error500InternalServerError("Error al agregar fotos al album", err)
 	}
 
-	return nil
+	return nil, nil
 }

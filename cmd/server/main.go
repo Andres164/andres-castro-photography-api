@@ -34,6 +34,9 @@ func main() {
 	photoService := services.NewPhotoService(storageService)
 	photoHandler := handlers.NewPhotoHandler(photoService)
 
+	albumService := services.NewAlbumService(photoService)
+	albumHandler := handlers.NewAlbumHandler(albumService)
+
 	config := huma.DefaultConfig("Andres Castro photography API", "0.1.0")
 	config.Components.SecuritySchemes = map[string]*huma.SecurityScheme {
 		"bearerAuth": {
@@ -64,13 +67,6 @@ func main() {
 		middleware.RequireAdmin(api),
 	)
 
-	// Users
-	huma.Register(adminGroup, huma.Operation{
-		OperationID: "get-users",
-		Method: http.MethodGet,
-		Path: "/users",
-	}, handlers.GetUsers)
-
 	// Photos
 	huma.Register(api, huma.Operation{
 		OperationID: "get-photos",
@@ -94,7 +90,28 @@ func main() {
 	huma.Delete(adminGroup, "/photos/{id}", handlers.DeletePhoto)
 	huma.Patch(adminGroup, "/photos/{id}", handlers.UpdatePhoto)
 
+	// Albums
+	huma.Register(adminGroup, huma.Operation{
+		OperationID: "create-album",
+		Method: http.MethodPost,
+		Path: "/albums",
+	}, albumHandler.CreateAlbum)
+
+	huma.Register(adminGroup, huma.Operation{
+		OperationID: "add-album-photos",
+		Method: http.MethodPost,
+		Path: "/albums/{id}/photos",
+		Summary:     "Add photos to an album",
+		DefaultStatus: http.StatusNoContent,
+	}, albumHandler.AddPhotos)
+
 	// USERS
+	huma.Register(adminGroup, huma.Operation{
+		OperationID: "get-users",
+		Method: http.MethodGet,
+		Path: "/users",
+	}, handlers.GetUsers)
+
 	huma.Post(api, "/users/login", handlers.LogIn)
 	huma.Post(api, "/users", handlers.CreateUser)
 	huma.Patch(adminGroup, "/users/{id}", handlers.UpdateUser)
