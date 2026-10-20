@@ -27,6 +27,12 @@
   - Album Service getAlbum()
   - Album handler getAlbum()
 
+## Return Signed URL when returning photo image instead of bytes
+
+## Upload to Artifact registry
+
+## Back-end MVP IS NOW COMPLETE !!!
+
 ## Clean Schemas delete the ones that aren't used anymore
 
 ## Return the re-seized image

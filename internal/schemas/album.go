@@ -15,6 +15,10 @@ type AlbumDetailedResponse struct  {
 	Photos []GetPhotoResponse `json:"photos"`
 }
 
+type GetAlbumInput struct {
+	ID uint `path:"id"`
+}
+
 type GetAlbumOutput struct {
 	Body AlbumDetailedResponse
 }

@@ -47,10 +47,10 @@ func (s *AlbumService) AddPhotos(
 	}
 
 	// TODO: Remove Photo IDs which already exist in the Album
-	
 	return database.DB.Transaction(func(tx *gorm.DB) error {
-        var album models.Album
-
+		var album models.Album
+		
+		// TODO: take a look at db.Clauses(clause.Locking{Strength: "UPDATE"}).Find(&users) for use instead of transaction
         if err := tx.First(&album, albumID).Error; err != nil {
             if errors.Is(err, gorm.ErrRecordNotFound) {
                 return ErrAlbumNotFound
@@ -74,4 +74,27 @@ func (s *AlbumService) AddPhotos(
 
         return nil
     })
+}
+
+func (s *AlbumService) GetAlbums() ([]models.Album, error) {
+	// Get albums from the database
+	var albums []models.Album // TODO: optimize Find query, we dont need the photos column
+	if err := database.DB.Find(&albums).Error; err != nil {
+		return nil, err
+	}
+
+	return albums, nil
+}
+
+func (s *AlbumService) GetAlbumByID(ID uint) (*models.Album, error) {
+	var album *models.Album
+	if err := database.DB.First(album, ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrAlbumNotFound
+		}
+
+		return nil, err
+	}
+
+	return album, nil
 }

@@ -105,6 +105,20 @@ func main() {
 		DefaultStatus: http.StatusNoContent,
 	}, albumHandler.AddPhotos)
 
+	huma.Register(protectedGroup, huma.Operation{
+		OperationID: "get-albums",
+		Method: http.MethodGet,
+		Path: "/albums/",
+		Summary: "Get all albums",
+	}, albumHandler.GetAlbums)
+
+	huma.Register(protectedGroup, huma.Operation{
+		OperationID: "get-album-by-id",
+		Method: http.MethodGet,
+		Path: "/albums/{id}",
+		Summary: "Get album by ID",
+	}, albumHandler.GetAlbumByID)
+
 	// USERS
 	huma.Register(adminGroup, huma.Operation{
 		OperationID: "get-users",
