@@ -12,7 +12,7 @@ type AlbumDetailedResponse struct  {
 	Title string `json:"title"`
 	Description string `json:"description"`
 	CoverImageURI string `json:"coverImageUri"`
-	Photos []GetPhotoResponse `json:"photos"`
+	Photos []PhotoThumbnailResponse `json:"photos"`
 }
 
 type GetAlbumInput struct {

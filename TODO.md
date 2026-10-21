@@ -20,14 +20,14 @@
 - Add photo to album (DONE!)
   - Album Service addPhotos() (DONE!)
   - Album handler addPhotos() (DONE!)
-- Get all albums (🚧 In Progress...)
-  - Album Service getAlbums()
-  - Album handler getAlbums()
-- Get album by id
-  - Album Service getAlbum()
-  - Album handler getAlbum()
+- Get all albums (DONE!)
+  - Album Service getAlbums() (DONE!)
+  - Album handler getAlbums() (DONE!)
+- Get album by id (DONE!)
+  - Album Service getAlbum() (DONE!)
+  - Album handler getAlbum() (DONE!)
 
-## Return Signed URL when returning photo image instead of bytes
+## Return Signed URL when returning photo image instead of bytes (In Progress... 🚧)
 
 ## Upload to Artifact registry
 

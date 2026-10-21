@@ -64,7 +64,7 @@ func (h *AlbumHandler) AddPhotos(ctx context.Context, input *schemas.AddAlbumPho
 func (h *AlbumHandler) GetAlbums(ctx context.Context, input *struct{}) (*schemas.GetAlbumsOutput, error) {
 	albums, err := h.service.GetAlbums()
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Error al obtener albumes")
+		return nil, huma.Error500InternalServerError("Error al obtener albumes", err)
 	}
 
 	var albumResponseCollection []schemas.AlbumSummaryResponse
@@ -92,18 +92,15 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 		if errors.Is(err, services.ErrAlbumNotFound) {
 			return nil, huma.Error404NotFound("No se encontro un album con el ID proporcionado")
 		}
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ocurrio un error al obtener el album", err)
 	}
 
-	var albumPhotosResCollection []schemas.GetPhotoResponse
+	var albumPhotosResCollection []schemas.PhotoThumbnailResponse
 	for _, p := range album.Photos {
 		imageURI := fmt.Sprintf("photo/%d/image", p.ID)
-		photoResponse := &schemas.GetPhotoResponse{
+		photoResponse := &schemas.PhotoThumbnailResponse{
 			ID: p.ID,
-			Title: p.Title,
-			Description: p.Description,
-			ImageUri: imageURI,
-			ContentType: p.ContentType,
+			ImageURI: imageURI,
 		}
 		albumPhotosResCollection = append(albumPhotosResCollection, *photoResponse)
 	}

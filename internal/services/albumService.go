@@ -88,7 +88,9 @@ func (s *AlbumService) GetAlbums() ([]models.Album, error) {
 
 func (s *AlbumService) GetAlbumByID(ID uint) (*models.Album, error) {
 	var album *models.Album
-	if err := database.DB.First(album, ID).Error; err != nil {
+	if err := database.DB.
+	Preload("Photos").
+	First(&album, ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrAlbumNotFound
 		}
