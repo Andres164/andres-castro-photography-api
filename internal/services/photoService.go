@@ -42,19 +42,19 @@ func (s *PhotoService) CreatePhoto(
 func (s *PhotoService) GetPhotoImage(
 	ctx context.Context,
 	id uint,
-) (io.ReadCloser, string, error) {
+) (string, error) {
 	var photo models.Photo
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
-		return nil, "", err
+		return "", err
 	}
 
-	reader, err := s.storage.Get(ctx, photo.StorageKey)
+	signedUrl, err := s.storage.Get(ctx, photo.StorageKey)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
-	return reader, photo.ContentType, nil
+	return signedUrl, nil
 }
 
 func (s *PhotoService) GetPhotoById(

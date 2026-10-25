@@ -27,13 +27,16 @@
   - Album Service getAlbum() (DONE!)
   - Album handler getAlbum() (DONE!)
 
-## Return Signed URL when returning photo image instead of bytes (In Progress... 🚧)
+## Return Signed URL when returning photo image instead of bytes (In Progress... 🚧) (DONE!)
+
+## Refactor schemsa
+
+- merge all schemas spread in different files into one for each resource
+- Delete unused schemas
 
 ## Upload to Artifact registry
 
 ## Back-end MVP IS NOW COMPLETE !!!
-
-## Clean Schemas delete the ones that aren't used anymore
 
 ## Return the re-seized image
 

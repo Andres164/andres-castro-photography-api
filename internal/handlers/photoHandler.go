@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
@@ -79,25 +78,20 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 func (h* PhotoHandler) GetPhotoImage(
     ctx context.Context,
     input *schemas.PhotoIdInput,
-) (*huma.StreamResponse, error) {
+) (*schemas.GetPhotoImageOutput, error) {
 
-    reader, contentType, err := h.service.GetPhotoImage(ctx, input.ID)
+    signedUrl, err := h.service.GetPhotoImage(ctx, input.ID)
     if err != nil {
         return nil, err
     }
 
-    return &huma.StreamResponse{
-        Body: func(humaCtx huma.Context) {
-            defer reader.Close()
 
-            humaCtx.SetHeader("Content-Type", contentType)
-
-            _, err := io.Copy(humaCtx.BodyWriter(), reader)
-            if err != nil {
-                return
-            }
-        },
-    }, nil
+    return &schemas.GetPhotoImageOutput{
+		Body: schemas.PhotoImageResponse{
+			ID: input.ID,
+			SignedUrl: signedUrl,
+		},
+	}, nil
 }
 
 func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, error) {
