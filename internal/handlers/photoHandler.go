@@ -116,7 +116,7 @@ func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, 
 	}, nil
 }
 
-func DeletePhoto(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoByIdResponse, error) {
+func DeletePhoto(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.GetPhotoOutput, error) {
 	var photo models.Photo
 	if err := database.DB.Delete(&photo, input.ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -126,13 +126,21 @@ func DeletePhoto(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Get
 		return nil, huma.Error500InternalServerError("Error al eliminar la foto: %w", err)
 	}
 
-	response := &schemas.GetPhotoByIdResponse{
-		Body: photo,
+	photoResponse := schemas.GetPhotoResponse{
+		ID: photo.ID,
+		Title: photo.Title,
+		Description: photo.Description,
+		ImageUri: "",
+		ContentType: photo.ContentType,
+	}
+
+	response := &schemas.GetPhotoOutput{
+		Body: photoResponse,
 	}
 	return response, nil
 }
 
-func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas.GetPhotoByIdResponse, error) {
+func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas.GetPhotoOutput, error) {
 	var photo models.Photo
 
 	if err := database.DB.First(&photo, input.ID).Error; err != nil {
@@ -160,7 +168,17 @@ func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas
 		return nil, huma.Error500InternalServerError("Error al actualizar foto: %w", err)
 	}
 
-	return &schemas.GetPhotoByIdResponse{
-		Body: photo,
-	}, nil
+	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	photoResponse := schemas.GetPhotoResponse{
+		ID: photo.ID,
+		Title: photo.Title,
+		Description: photo.Description,
+		ImageUri: imageUri,
+		ContentType: photo.ContentType,
+	}
+
+	response := &schemas.GetPhotoOutput{
+		Body: photoResponse,
+	}
+	return response, nil
 }
