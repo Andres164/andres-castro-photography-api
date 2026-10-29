@@ -121,3 +121,15 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 		Body: *albumResponse,
 	}, nil
 }
+
+func (h *AlbumHandler) SetAlbumCoverPhoto(ctx context.Context, input *schemas.SetAlbumCoverInput) (*struct{}, error) {
+	err := h.service.UpdateCoverPhoto(input.ID, input.Body.PhotoID)
+	if err != nil {
+		if errors.Is(err, services.ErrPhotoNotInAlbum) {
+			return nil, huma.Error400BadRequest("La foto proporcionada no pertenece al album que desea actualizar")
+		}
+		return nil, huma.Error500InternalServerError("Ocurrio un error inesperado al cambiar el cover del album")
+	}
+
+	return nil, nil
+}

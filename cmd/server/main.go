@@ -119,6 +119,13 @@ func main() {
 		Summary: "Get album by ID",
 	}, albumHandler.GetAlbumByID)
 
+	huma.Register(protectedGroup, huma.Operation{
+		OperationID: "set-album-cover-photo",
+		Method: http.MethodPut,
+		Path: "/albums/{id}/cover",
+		Summary: "Set album cover photo",
+	}, albumHandler.GetAlbumByID)
+
 	// USERS
 	huma.Register(adminGroup, huma.Operation{
 		OperationID: "get-users",

@@ -88,5 +88,6 @@ func (s *PhotoService) DoPhotosExists(
 		return false, err
 	}
 
-	return count == int64(len(photoIDs)), nil
+	photoIDsLenght := int64(len(photoIDs))
+	return count == photoIDsLenght, nil
 }
