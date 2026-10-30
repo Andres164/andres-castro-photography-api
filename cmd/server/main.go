@@ -68,19 +68,19 @@ func main() {
 	)
 
 	// Photos
-	huma.Register(api, huma.Operation{
+	huma.Register(protectedGroup, huma.Operation{
 		OperationID: "get-photos",
 		Method: http.MethodGet,
 		Path: "/photos",
 	}, handlers.GetPhotos)
 
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(api, huma.Operation{
 		OperationID: "get-photo-by-id",
 		Method: http.MethodGet,
 		Path: "/photos/{id}",
 	}, handlers.GetPhotoById)
 
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(api, huma.Operation{
 		OperationID: "get-photo-image",
 		Method: http.MethodGet,
 		Path: "/photos/{id}/image",
@@ -105,14 +105,14 @@ func main() {
 		DefaultStatus: http.StatusNoContent,
 	}, albumHandler.AddPhotos)
 
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(api, huma.Operation{
 		OperationID: "get-albums",
 		Method: http.MethodGet,
 		Path: "/albums/",
 		Summary: "Get all albums",
 	}, albumHandler.GetAlbums)
 
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(api, huma.Operation{
 		OperationID: "get-album-by-id",
 		Method: http.MethodGet,
 		Path: "/albums/{id}",
@@ -124,7 +124,8 @@ func main() {
 		Method: http.MethodPut,
 		Path: "/albums/{id}/cover",
 		Summary: "Set album cover photo",
-	}, albumHandler.GetAlbumByID)
+		Description: "Sets a photo belonging to the album as its cover.",
+	}, albumHandler.SetAlbumCoverPhoto)
 
 	// USERS
 	huma.Register(adminGroup, huma.Operation{

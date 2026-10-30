@@ -1,10 +1,13 @@
 package schemas
 
+import "time"
+
 type AlbumSummaryResponse struct  {
 	ID uint `json:"id"`
 	Title string `json:"title"`
 	Description string `json:"description"`
 	CoverImageURI string `json:"coverImageUri"`
+	TakenAt time.Time `json:"takenAt"`
 }
 
 type AlbumDetailedResponse struct  {
@@ -12,6 +15,7 @@ type AlbumDetailedResponse struct  {
 	Title string `json:"title"`
 	Description string `json:"description"`
 	CoverImageURI string `json:"coverImageUri"`
+	TakenAt time.Time `json:"takenAt"`
 	Photos []PhotoThumbnailResponse `json:"photos"`
 }
 
@@ -30,6 +34,7 @@ type GetAlbumsOutput struct {
 type CreateAlbumRequest struct {
 	Title string `json:"title" minlength:"1" required:"true"`
 	Description string `json:"description"`
+	TakenAt string `json:"takenAt"`
 }
 
 type CreateAlbumInput struct {

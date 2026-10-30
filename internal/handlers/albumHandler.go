@@ -36,6 +36,7 @@ func (h *AlbumHandler) CreateAlbum(ctx context.Context, input *schemas.CreateAlb
 		ID: createdAlbum.ID,
 		Title: createdAlbum.Title,
 		Description: createdAlbum.Description,
+		TakenAt: *createdAlbum.TakenAt,
 		CoverImageURI: "",
 	}
 
@@ -71,13 +72,14 @@ func (h *AlbumHandler) GetAlbums(ctx context.Context, input *struct{}) (*schemas
 	for _, a := range albums {
 		coverImageURI := ""
 		if a.CoverPhotoID != nil {
-			coverImageURI = fmt.Sprintf("photo/%d/image", a.CoverPhotoID)
+			coverImageURI = fmt.Sprintf("photos/%d/image", a.CoverPhotoID)
 		}
 		albumResponseCollection = append(albumResponseCollection, schemas.AlbumSummaryResponse{
 			ID: a.ID,
 			Title: a.Title,
 			Description: a.Description,
 			CoverImageURI: coverImageURI,
+			TakenAt: *a.TakenAt,
 		})
 	}
 
@@ -97,7 +99,7 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 
 	var albumPhotosResCollection []schemas.PhotoThumbnailResponse
 	for _, p := range album.Photos {
-		imageURI := fmt.Sprintf("photo/%d/image", p.ID)
+		imageURI := fmt.Sprintf("photos/%d/image", p.ID)
 		photoResponse := &schemas.PhotoThumbnailResponse{
 			ID: p.ID,
 			ImageURI: imageURI,
@@ -107,13 +109,14 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 
 	coverImageURI := ""
 	if album.CoverPhotoID != nil {
-		coverImageURI = fmt.Sprintf("photo/%d/image", album.CoverPhotoID)
+		coverImageURI = fmt.Sprintf("photos/%d/image", *album.CoverPhotoID)
 	}
 	albumResponse := &schemas.AlbumDetailedResponse{
 		ID: album.ID,
 		Title: album.Title,
 		Description: album.Description,
 		CoverImageURI: coverImageURI,
+		TakenAt: *album.TakenAt,
 		Photos: albumPhotosResCollection,
 	}
 

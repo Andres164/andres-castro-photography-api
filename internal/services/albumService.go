@@ -114,9 +114,9 @@ func (s *AlbumService) UpdateCoverPhoto(albumID uint, photoID uint) (error) {
 
 	var count int64
 	err := database.DB.
-		Model(&models.Album{}).
-		Where("id = ? AND cover_photo_id = ?", albumID, photoID).
-		Count(&count).Error
+        Table("album_photos").
+        Where("album_id = ? AND photo_id = ?", albumID, photoID).
+        Count(&count).Error
 
 	if err != nil {
 		return fmt.Errorf("check album photo association: %w", err)

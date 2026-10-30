@@ -34,7 +34,7 @@
 - merge all schemas spread in different files into one for each resource (DONE!)
 - Delete unused schemas (DONE!)
 
-## Update album, SET cover image
+## Update album, SET cover image (DONE!)
 
 ## Upload to Artifact registry
 
