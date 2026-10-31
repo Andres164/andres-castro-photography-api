@@ -54,6 +54,7 @@ func main() {
 	}
 
 	// Gin middleware
+	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.SecurityHeaders())
 	
 	api := humagin.New(r, config)
@@ -68,7 +69,7 @@ func main() {
 	)
 
 	// Photos
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(api, huma.Operation{
 		OperationID: "get-photos",
 		Method: http.MethodGet,
 		Path: "/photos",

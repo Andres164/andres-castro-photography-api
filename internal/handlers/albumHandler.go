@@ -36,7 +36,7 @@ func (h *AlbumHandler) CreateAlbum(ctx context.Context, input *schemas.CreateAlb
 		ID: createdAlbum.ID,
 		Title: createdAlbum.Title,
 		Description: createdAlbum.Description,
-		TakenAt: *createdAlbum.TakenAt,
+		TakenAt: createdAlbum.TakenAt,
 		CoverImageURI: "",
 	}
 
@@ -72,14 +72,14 @@ func (h *AlbumHandler) GetAlbums(ctx context.Context, input *struct{}) (*schemas
 	for _, a := range albums {
 		coverImageURI := ""
 		if a.CoverPhotoID != nil {
-			coverImageURI = fmt.Sprintf("photos/%d/image", a.CoverPhotoID)
+			coverImageURI = fmt.Sprintf("photos/%d/image", *a.CoverPhotoID)
 		}
 		albumResponseCollection = append(albumResponseCollection, schemas.AlbumSummaryResponse{
 			ID: a.ID,
 			Title: a.Title,
 			Description: a.Description,
 			CoverImageURI: coverImageURI,
-			TakenAt: *a.TakenAt,
+			TakenAt: a.TakenAt,
 		})
 	}
 

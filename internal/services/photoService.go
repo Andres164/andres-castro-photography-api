@@ -4,7 +4,10 @@ import (
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
 	"context"
+	"errors"
 	"io"
+
+	"gorm.io/gorm"
 )
 
 type PhotoService struct {
@@ -46,6 +49,9 @@ func (s *PhotoService) GetPhotoImage(
 	var photo models.Photo
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", ErrPhotoNotFound
+		}
 		return "", err
 	}
 
@@ -64,6 +70,9 @@ func (s *PhotoService) GetPhotoById(
 	var photo *models.Photo
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrPhotoNotFound
+		}
 		return nil, err
 	}
 

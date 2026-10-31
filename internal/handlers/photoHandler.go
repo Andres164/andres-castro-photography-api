@@ -39,7 +39,7 @@ func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePho
 		return nil, huma.Error500InternalServerError("Error al crear la foto", err)
 	}
 
-	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	imageUri := fmt.Sprintf("photos/%d/image", photo.ID)
 	photoResponse := &schemas.GetPhotoResponse{
 		ID:          createdPhoto.ID,
 		Title:       createdPhoto.Title,
@@ -61,7 +61,7 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 		return nil, huma.Error404NotFound("Photo not found")
 	}
 
-	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	imageUri := fmt.Sprintf("photos/%d/image", photo.ID)
 	photoResponse := &schemas.GetPhotoResponse{
 		ID:          photo.ID,
 		Title:       photo.Title,
@@ -82,7 +82,10 @@ func (h* PhotoHandler) GetPhotoImage(
 
     signedUrl, err := h.service.GetPhotoImage(ctx, input.ID)
     if err != nil {
-        return nil, err
+		if errors.Is(err, services.ErrPhotoNotFound) {
+			return nil, huma.Error404NotFound("La proporcionada foto no existe", err)
+		}
+        return nil, huma.Error500InternalServerError("Error inesperado al obtener la imagen", err)
     }
 
 
@@ -102,7 +105,7 @@ func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, 
 
 	var photoResponseCollection []schemas.GetPhotoResponse
 	for _, p := range photos {
-		imageUri := fmt.Sprintf("photo/%d/image", p.ID)
+		imageUri := fmt.Sprintf("photos/%d/image", p.ID)
 		photoResponseCollection = append(photoResponseCollection, schemas.GetPhotoResponse{
 			ID: p.ID,
 			Title: p.Title,
@@ -168,7 +171,7 @@ func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas
 		return nil, huma.Error500InternalServerError("Error al actualizar foto: %w", err)
 	}
 
-	imageUri := fmt.Sprintf("photo/%d/image", photo.ID)
+	imageUri := fmt.Sprintf("photos/%d/image", photo.ID)
 	photoResponse := schemas.GetPhotoResponse{
 		ID: photo.ID,
 		Title: photo.Title,
