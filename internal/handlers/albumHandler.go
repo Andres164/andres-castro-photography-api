@@ -116,7 +116,7 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 		Title: album.Title,
 		Description: album.Description,
 		CoverImageURI: coverImageURI,
-		TakenAt: *album.TakenAt,
+		TakenAt: album.TakenAt,
 		Photos: albumPhotosResCollection,
 	}
 

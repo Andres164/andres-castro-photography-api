@@ -15,7 +15,7 @@ type AlbumDetailedResponse struct  {
 	Title string `json:"title"`
 	Description string `json:"description"`
 	CoverImageURI string `json:"coverImageUri"`
-	TakenAt time.Time `json:"takenAt"`
+	TakenAt *time.Time `json:"takenAt"`
 	Photos []PhotoThumbnailResponse `json:"photos"`
 }
 

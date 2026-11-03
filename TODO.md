@@ -36,11 +36,17 @@
 
 ## Update album, SET cover image (DONE!)
 
+## Return re-sized images for improved performance
+
+- Modify Output schemas to include imageURI and mediumURI
+- New naming convention for images - ID/IMG_NAME.jpg
+- PhotoService's CreatePhoto method should create the re-sized versions of the new image (ID/medium.jpg)
+
+## Refactor photo responses to include the generated SigneURI to the image instead of the endpoint to generate it
+
 ## Upload to Artifact registry
 
 ## Back-end MVP IS NOW COMPLETE !!!
-
-## Return the re-seized image
 
 ## Return re-sized and watermarked image
 
