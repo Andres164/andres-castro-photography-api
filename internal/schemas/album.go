@@ -2,21 +2,21 @@ package schemas
 
 import "time"
 
-type AlbumSummaryResponse struct  {
-	ID uint `json:"id"`
-	Title string `json:"title"`
-	Description string `json:"description"`
-	CoverImageURI string `json:"coverImageUri"`
-	TakenAt *time.Time `json:"takenAt"`
+type AlbumSummaryResponse struct {
+	ID            uint       `json:"id"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	CoverImageURI string     `json:"coverImageUri"`
+	TakenAt       *time.Time `json:"takenAt"`
 }
 
-type AlbumDetailedResponse struct  {
-	ID uint `json:"id"`
-	Title string `json:"title"`
-	Description string `json:"description"`
-	CoverImageURI string `json:"coverImageUri"`
-	TakenAt *time.Time `json:"takenAt"`
-	Photos []PhotoThumbnailResponse `json:"photos"`
+type AlbumDetailedResponse struct {
+	ID            uint               `json:"id"`
+	Title         string             `json:"title"`
+	Description   string             `json:"description"`
+	CoverImageURI string             `json:"coverImageUri"`
+	TakenAt       *time.Time         `json:"takenAt"`
+	Photos        []ImageURIResponse `json:"photos"`
 }
 
 type GetAlbumInput struct {
@@ -32,9 +32,9 @@ type GetAlbumsOutput struct {
 }
 
 type CreateAlbumRequest struct {
-	Title string `json:"title" minlength:"1" required:"true"`
+	Title       string `json:"title" minlength:"1" required:"true"`
 	Description string `json:"description"`
-	TakenAt string `json:"takenAt"`
+	TakenAt     string `json:"takenAt"`
 }
 
 type CreateAlbumInput struct {
@@ -46,19 +46,19 @@ type CreateAlbumOutput struct {
 }
 
 type AddAlbumPhotosRequest struct {
-    PhotoIDs []uint `json:"photoIds" minItems:"1" required:"true"`
+	PhotoIDs []uint `json:"photoIds" minItems:"1" required:"true"`
 }
 
 type AddAlbumPhotosInput struct {
-	ID uint `path:"id"`
+	ID   uint `path:"id"`
 	Body AddAlbumPhotosRequest
 }
 
 type SetAlbumCoverRequest struct {
-    PhotoID uint `json:"photoId" required:"true"`
+	PhotoID uint `json:"photoId" required:"true"`
 }
 
 type SetAlbumCoverInput struct {
-    ID   uint `path:"id"`
-    Body SetAlbumCoverRequest
+	ID   uint `path:"id"`
+	Body SetAlbumCoverRequest
 }

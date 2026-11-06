@@ -38,15 +38,21 @@
 
 ## Return re-sized images for improved performance
 
-- Modify Output schemas to include imageURI and mediumURI
-- New naming convention for images - ID/IMG_NAME.jpg
-- PhotoService's CreatePhoto method should create the re-sized versions of the new image (ID/medium.jpg)
+- Modify get Image Output schema to include OriginalURL and mediumURL (DONE!)
+- New naming convention for images - photos/ID/IMG_NAME.jpg
+- PhotoService's CreatePhoto method should create the re-sized versions of the new image (photos/ID/medium.jpg)
 
-## Refactor photo responses to include the generated SigneURI to the image instead of the endpoint to generate it
+## Fix JWT key. Use Env variable
+
+## Fix Register user. User Role shouldn't be set on user creation, only an admin should be able to set it after creation on the UPDATE Endpoint
 
 ## Upload to Artifact registry
 
 ## Back-end MVP IS NOW COMPLETE !!!
+
+## Use CloudFlare
+
+## Configure CSP on the hsts middleware
 
 ## Return re-sized and watermarked image
 

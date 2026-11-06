@@ -1,13 +1,22 @@
 package services
 
 import (
-	"andres_castro_photography_api/internal/database"
-	"andres_castro_photography_api/internal/models"
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 
+	_ "image/jpeg"
+	_ "image/png"
+
+	"github.com/disintegration/imaging"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"andres_castro_photography_api/internal/database"
+	"andres_castro_photography_api/internal/models"
 )
 
 type PhotoService struct {
@@ -20,26 +29,74 @@ func NewPhotoService(storage *StorageService) *PhotoService {
 	}
 }
 
+const (
+    maxUploadSize  = 25 << 20 // 25MB hard cap
+    mediumMaxWidth = 1600     // px, long edge; height scales proportionally
+    jpegQuality    = 85
+)
+
 func (s *PhotoService) CreatePhoto(
-	ctx context.Context,
-	reader io.Reader,
-	photo *models.Photo,
+    ctx context.Context,
+    reader io.Reader,
+    photo *models.Photo,
 ) (*models.Photo, error) {
-	// Receive uploaded file
-	// Upload file using StorageService
-	url, err := s.storage.Upload(ctx, reader, photo.Title)
+    limited := io.LimitReader(reader, maxUploadSize+1)
+    original, err := io.ReadAll(limited)
+    if err != nil {
+        return nil, fmt.Errorf("read upload: %w", err)
+    }
+    if len(original) > maxUploadSize {
+        return nil, ErrMaxUploadSizeExceeded // TODO: Inform the max upload size
+    }
 
-	if err != nil {
-		return nil, err
-	}
-	// Save to PostgreSQL
-	photo.StorageKey = url
-	// Return Photo
-	if err := database.DB.Create(photo).Error; err != nil {
-		return nil, err
-	}
+    img, err := imaging.Decode(bytes.NewReader(original))
+    if err != nil {
+        return nil, ErrInvalidImageFile
+    }
 
-	return photo, nil
+    medium := imaging.Resize(img, mediumMaxWidth, 0, imaging.Lanczos)
+
+    var mediumBuf bytes.Buffer
+    if err := imaging.Encode(&mediumBuf, medium, imaging.JPEG, imaging.JPEGQuality(jpegQuality)); err != nil {
+        return nil, fmt.Errorf("encode medium image: %w", err)
+    }
+
+    storageID := uuid.NewString()
+    baseStorageKey := fmt.Sprintf("photos/%s/", storageID)
+    originalKey := baseStorageKey + "original"
+    mediumKey := baseStorageKey + "medium.jpg"
+
+    if err := s.storage.Upload(ctx, bytes.NewReader(original), originalKey); err != nil {
+        return nil, fmt.Errorf("upload original: %w", err)
+    }
+
+    if err := s.storage.Upload(ctx, &mediumBuf, mediumKey); err != nil {
+        if delErr := s.storage.Delete(ctx, originalKey); delErr != nil {
+            log.Printf("cleanup failed for %s: %v", originalKey, delErr)
+        }
+        return nil, fmt.Errorf("upload medium: %w", err)
+    }
+
+    photo.StorageKey = baseStorageKey
+
+    if err := database.DB.Create(photo).Error; err != nil {
+        if delErr := s.storage.Delete(ctx, originalKey); delErr != nil {
+            log.Printf("cleanup failed for %s: %v", originalKey, delErr)
+        }
+        if delErr := s.storage.Delete(ctx, mediumKey); delErr != nil {
+            log.Printf("cleanup failed for %s: %v", mediumKey, delErr)
+        }
+        return nil, fmt.Errorf("save photo record: %w", err)
+    }
+
+    return photo, nil
+}
+
+func (s *StorageService) Delete(ctx context.Context, objectName string) error {
+    if err := s.bucket.Object(objectName).Delete(ctx); err != nil {
+        return fmt.Errorf("delete object %q: %w", objectName, err)
+    }
+    return nil
 }
 
 func (s *PhotoService) GetPhotoImage(

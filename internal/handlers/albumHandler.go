@@ -23,7 +23,7 @@ func NewAlbumHandler(albumService *services.AlbumService) *AlbumHandler {
 
 func (h *AlbumHandler) CreateAlbum(ctx context.Context, input *schemas.CreateAlbumInput) (*schemas.CreateAlbumOutput, error) {
 	newAlbum := &models.Album{
-		Title: input.Body.Title,
+		Title:       input.Body.Title,
 		Description: input.Body.Description,
 	}
 
@@ -33,10 +33,10 @@ func (h *AlbumHandler) CreateAlbum(ctx context.Context, input *schemas.CreateAlb
 	}
 
 	albumResponse := &schemas.AlbumSummaryResponse{
-		ID: createdAlbum.ID,
-		Title: createdAlbum.Title,
-		Description: createdAlbum.Description,
-		TakenAt: createdAlbum.TakenAt,
+		ID:            createdAlbum.ID,
+		Title:         createdAlbum.Title,
+		Description:   createdAlbum.Description,
+		TakenAt:       createdAlbum.TakenAt,
 		CoverImageURI: "",
 	}
 
@@ -51,7 +51,7 @@ func (h *AlbumHandler) AddPhotos(ctx context.Context, input *schemas.AddAlbumPho
 	if err != nil {
 		if errors.Is(err, services.ErrPhotosNotFound) {
 			return nil, huma.Error404NotFound("Una o mas fotos no existen", err)
-		} 
+		}
 		if errors.Is(err, services.ErrAlbumNotFound) {
 			return nil, huma.Error404NotFound("El album que quiere actualizar no existe", err)
 		}
@@ -75,11 +75,11 @@ func (h *AlbumHandler) GetAlbums(ctx context.Context, input *struct{}) (*schemas
 			coverImageURI = fmt.Sprintf("photos/%d/image", *a.CoverPhotoID)
 		}
 		albumResponseCollection = append(albumResponseCollection, schemas.AlbumSummaryResponse{
-			ID: a.ID,
-			Title: a.Title,
-			Description: a.Description,
+			ID:            a.ID,
+			Title:         a.Title,
+			Description:   a.Description,
 			CoverImageURI: coverImageURI,
-			TakenAt: a.TakenAt,
+			TakenAt:       a.TakenAt,
 		})
 	}
 
@@ -97,11 +97,11 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 		return nil, huma.Error500InternalServerError("Ocurrio un error al obtener el album", err)
 	}
 
-	var albumPhotosResCollection []schemas.PhotoThumbnailResponse
+	var albumPhotosResCollection []schemas.ImageURIResponse
 	for _, p := range album.Photos {
 		imageURI := fmt.Sprintf("photos/%d/image", p.ID)
-		photoResponse := &schemas.PhotoThumbnailResponse{
-			ID: p.ID,
+		photoResponse := &schemas.ImageURIResponse{
+			ID:       p.ID,
 			ImageURI: imageURI,
 		}
 		albumPhotosResCollection = append(albumPhotosResCollection, *photoResponse)
@@ -112,12 +112,12 @@ func (h *AlbumHandler) GetAlbumByID(ctx context.Context, input *schemas.GetAlbum
 		coverImageURI = fmt.Sprintf("photos/%d/image", *album.CoverPhotoID)
 	}
 	albumResponse := &schemas.AlbumDetailedResponse{
-		ID: album.ID,
-		Title: album.Title,
-		Description: album.Description,
+		ID:            album.ID,
+		Title:         album.Title,
+		Description:   album.Description,
 		CoverImageURI: coverImageURI,
-		TakenAt: album.TakenAt,
-		Photos: albumPhotosResCollection,
+		TakenAt:       album.TakenAt,
+		Photos:        albumPhotosResCollection,
 	}
 
 	return &schemas.GetAlbumOutput{

@@ -23,7 +23,7 @@ type GetPhotosOutput struct {
 }
 
 type CreatePhotoInput struct {
-	RawBody huma.MultipartFormFiles[ struct {
+	RawBody huma.MultipartFormFiles[struct {
 		File        huma.FormFile `form:"file" required:"true"`
 		Title       string        `form:"title" required:"true"`
 		Description string        `form:"description"`
@@ -37,19 +37,20 @@ type UpdatePhotoInput struct {
 	Body struct {
 		Title       *string `json:"title,omitempty"`
 		Description *string `json:"description,omitempty"`
-		Url *string `json:"url,omitempty"`
+		Url         *string `json:"url,omitempty"`
 		ContentType *string `json:"content_type,omitempty"`
 	} `json:"body"`
 }
 
-type PhotoThumbnailResponse struct {
+type ImageURIResponse struct {
 	ID       uint   `json:"id"`
 	ImageURI string `json:"imageUri"`
 }
 
 type PhotoImageResponse struct {
 	ID        uint   `json:"id"`
-	SignedUrl string `json:"signedUrl"`
+	OriginalURL string `json:"originalUrl"`
+	MediumURL string `json:"mediumUrl"`
 }
 
 type GetPhotoImageOutput struct {

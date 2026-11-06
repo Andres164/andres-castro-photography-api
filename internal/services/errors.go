@@ -8,3 +8,5 @@ var ErrPhotoNotInAlbum = errors.New("photo does not belong to album")
 
 // PhotoService
 var ErrPhotoNotFound = errors.New("Photo not found")
+var ErrMaxUploadSizeExceeded = errors.New("Exceeded the maximum image upload size")
+var ErrInvalidImageFile = errors.New("The file uploaded is not a valid image file")

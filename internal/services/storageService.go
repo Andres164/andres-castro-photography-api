@@ -34,21 +34,21 @@ func (s *StorageService) Upload(
     ctx context.Context,
     reader io.Reader,
     objectName string,
-) (string, error) {
+) (error) {
 	objectH := s.bucket.Object(objectName)
 	writer := objectH.NewWriter(ctx)
 
 	_, err := io.Copy(writer, reader)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	err = writer.Close()
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return objectName, nil
+	return nil
 }
 
 func (s *StorageService) Get(
