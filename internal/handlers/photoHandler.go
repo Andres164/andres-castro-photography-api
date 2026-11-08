@@ -29,13 +29,18 @@ func (h *PhotoHandler) CreatePhoto(ctx context.Context, input *schemas.CreatePho
 
 	photo := &models.Photo{
 		Title:       form.Title,
-		Description: form.Description,
+		Description: &form.Description,
 		ContentType: form.ContentType,
 	}
 
 	createdPhoto, err := h.service.CreatePhoto(ctx, form.File, photo)
-
 	if err != nil {
+		if errors.Is(err, services.ErrMaxUploadSizeExceeded) {
+			return nil, huma.Error400BadRequest("La imagen supera el límite máximo de subida")
+		}
+		if errors.Is(err, services.ErrInvalidImageFile) {
+			return nil, huma.Error400BadRequest("La imagen es un archivo invalido o tiene un formato incompatible")
+		}
 		return nil, huma.Error500InternalServerError("Error al crear la foto", err)
 	}
 
@@ -80,7 +85,7 @@ func (h* PhotoHandler) GetPhotoImage(
     input *schemas.PhotoIdInput,
 ) (*schemas.GetPhotoImageOutput, error) {
 
-    signedUrl, err := h.service.GetPhotoImage(ctx, input.ID)
+    imageURLs, err := h.service.GetPhotoImage(ctx, input.ID)
     if err != nil {
 		if errors.Is(err, services.ErrPhotoNotFound) {
 			return nil, huma.Error404NotFound("La proporcionada foto no existe", err)
@@ -92,7 +97,8 @@ func (h* PhotoHandler) GetPhotoImage(
     return &schemas.GetPhotoImageOutput{
 		Body: schemas.PhotoImageResponse{
 			ID: input.ID,
-			SignedUrl: signedUrl,
+			OriginalURL: imageURLs.OriginalURL,
+			MediumURL: imageURLs.MediumURL,
 		},
 	}, nil
 }
@@ -158,7 +164,7 @@ func UpdatePhoto(ctx context.Context, input *schemas.UpdatePhotoInput) (*schemas
 		photo.Title = *input.Body.Title
 	}
 	if input.Body.Description != nil {
-		photo.Description = *input.Body.Description
+		photo.Description = input.Body.Description
 	}
 	if input.Body.Url != nil {
 		photo.StorageKey = *input.Body.Url

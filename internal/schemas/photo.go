@@ -7,11 +7,11 @@ type PhotoIdInput struct {
 }
 
 type GetPhotoResponse struct {
-	ID          uint   `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	ImageUri    string `json:"image_uri"`
-	ContentType string `json:"content_type"`
+	ID          uint   	`json:"id"`
+	Title       string 	`json:"title"`
+	Description *string `json:"description"`
+	ImageUri    string 	`json:"image_uri"`
+	ContentType string 	`json:"content_type"`
 }
 
 type GetPhotoOutput struct {
@@ -26,7 +26,7 @@ type CreatePhotoInput struct {
 	RawBody huma.MultipartFormFiles[struct {
 		File        huma.FormFile `form:"file" required:"true"`
 		Title       string        `form:"title" required:"true"`
-		Description string        `form:"description"`
+		Description string       `form:"description" required:"false"`
 		ContentType string        `form:"content_type" required:"true"`
 	}]
 }

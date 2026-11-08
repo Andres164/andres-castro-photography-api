@@ -36,7 +36,7 @@
 
 ## Update album, SET cover image (DONE!)
 
-## Return re-sized images for improved performance
+## Return re-sized images for improved performance (DONE!)
 
 - Modify get Image Output schema to include OriginalURL and mediumURL (DONE!)
 - New naming convention for images - photos/ID/IMG_NAME.jpg
@@ -51,6 +51,10 @@
 ## Back-end MVP IS NOW COMPLETE !!!
 
 ## Use CloudFlare
+
+## Let SetCoverImage receive a null photo id to "unset" the cover image
+
+## FIX: takenAt not being set at album creation
 
 ## Configure CSP on the hsts middleware
 

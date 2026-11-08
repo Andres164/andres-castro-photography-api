@@ -51,6 +51,7 @@ func (s *PhotoService) CreatePhoto(
 
     img, err := imaging.Decode(bytes.NewReader(original))
     if err != nil {
+		log.Printf("failed to decode uploaded image: %v", err)
         return nil, ErrInvalidImageFile
     }
 
@@ -62,9 +63,9 @@ func (s *PhotoService) CreatePhoto(
     }
 
     storageID := uuid.NewString()
-    baseStorageKey := fmt.Sprintf("photos/%s/", storageID)
-    originalKey := baseStorageKey + "original"
-    mediumKey := baseStorageKey + "medium.jpg"
+    baseStorageKey := fmt.Sprintf("photos/%s", storageID)
+    originalKey := baseStorageKey + "/original"
+    mediumKey := baseStorageKey + "/medium.jpg"
 
     if err := s.storage.Upload(ctx, bytes.NewReader(original), originalKey); err != nil {
         return nil, fmt.Errorf("upload original: %w", err)
@@ -99,25 +100,39 @@ func (s *StorageService) Delete(ctx context.Context, objectName string) error {
     return nil
 }
 
+type ImageURLs struct {
+	OriginalURL string
+	MediumURL 	string
+}
+
 func (s *PhotoService) GetPhotoImage(
 	ctx context.Context,
 	id uint,
-) (string, error) {
+) (*ImageURLs, error) {
 	var photo models.Photo
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", ErrPhotoNotFound
+			return nil, ErrPhotoNotFound
 		}
-		return "", err
+		return nil, err
 	}
 
-	signedUrl, err := s.storage.Get(ctx, photo.StorageKey)
+	originalKey := fmt.Sprintf("%s/original", photo.StorageKey)
+	mediumKey := fmt.Sprintf("%s/medium.jpg", photo.StorageKey)
+	originalURL, err := s.storage.Get(ctx, originalKey)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("get signedURL: %w", err)
+	}
+	mediumURL, err := s.storage.Get(ctx, mediumKey)
+	if err != nil {
+		return nil, fmt.Errorf("get signedURL: %w", err)
 	}
 
-	return signedUrl, nil
+	return &ImageURLs{
+		OriginalURL: originalURL,
+		MediumURL: mediumURL,
+	}, nil
 }
 
 func (s *PhotoService) GetPhotoById(
