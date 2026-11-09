@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "users",
         "photos",
-        "album"
+        "album",
+        "security"
     ]
 }

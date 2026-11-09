@@ -61,7 +61,7 @@ func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.U
 	user.Email = newUser.Email
 	user.Username = newUser.Username
 	user.Password = string(hashedPassword)
-	user.Role = newUser.Role
+	user.Role = "User"
 
 	if err := database.DB.Create(&user).Error; err != nil {
 		return nil, huma.Error500InternalServerError("Error al crear usuario: %w", err)
@@ -72,7 +72,6 @@ func CreateUser(ctx context.Context, input *schemas.CreateUserInput) (*schemas.U
 			ID:    user.ID,
 			Email:    user.Email,
 			Username: user.Username,
-			Role:     user.Role,
 		},
 	}, nil
 }
@@ -90,7 +89,6 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
             ID:    user.ID,
             Email:    user.Email,
             Username: user.Username,
-            Role:     user.Role,
         }
     }
 
@@ -99,7 +97,7 @@ func GetUsers(ctx context.Context, input *struct{}) (*schemas.GetUsersOutput, er
     }, nil
 }
 
-func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserOutput, error) {
+func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.AdminUserOutput, error) {
 	var user models.User
 
 	if err := database.DB.First(&user, input.ID).Error; err != nil {
@@ -114,19 +112,19 @@ func DeleteUser(ctx context.Context, input *schemas.UserIdInput) (*schemas.UserO
 		return nil, huma.Error500InternalServerError("Error al eliminar usuario: %w", err)
 	}
 
-	deletedUserResponse := schemas.UserResponse{
+	deletedUserResponse := schemas.AdminUserResponse{
 		ID: user.ID,
 		Email: user.Email,
 		Username: user.Username,
 		Role: user.Role,
 	}
 
-	return &schemas.UserOutput{
+	return &schemas.AdminUserOutput{
 		Body: deletedUserResponse,
 	}, nil
 }
 
-func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.UserOutput, error) {
+func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.AdminUserOutput, error) {
 	var user models.User
 
 	if input.Body.Email == nil &&
@@ -161,14 +159,14 @@ func UpdateUser(ctx context.Context, input *schemas.UpdateUserInput) (*schemas.U
 		return nil, huma.Error500InternalServerError("Error al actualizar usuario: %w", err)
 	}
 
-	updatedUser := &schemas.UserResponse{
+	updatedUser := &schemas.AdminUserResponse{
 		ID: user.ID,
 		Email: user.Email,
 		Username: user.Username,
 		Role: user.Role,
 	}
 
-	return &schemas.UserOutput{
+	return &schemas.AdminUserOutput{
 		Body: *updatedUser,
 	}, nil
 }

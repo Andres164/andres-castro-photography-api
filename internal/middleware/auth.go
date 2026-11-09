@@ -37,7 +37,7 @@ func AuthMiddleware(api huma.API) func(huma.Context, func(huma.Context)) {
 		tokenString := parts[1]
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-			return utils.JwtSecret, nil
+			return utils.JWTSecret, nil
 		})
 
 		if err != nil || !token.Valid {

@@ -5,6 +5,7 @@ import (
 	"andres_castro_photography_api/internal/handlers"
 	"andres_castro_photography_api/internal/middleware"
 	"andres_castro_photography_api/internal/services"
+	"andres_castro_photography_api/internal/utils"
 	"context"
 	"log"
 
@@ -18,6 +19,7 @@ import (
 
 func main() {
 	database.InitDB()
+	utils.SetJWTSecret()
 
 	r := gin.Default()
 
@@ -120,7 +122,7 @@ func main() {
 		Summary: "Get album by ID",
 	}, albumHandler.GetAlbumByID)
 
-	huma.Register(protectedGroup, huma.Operation{
+	huma.Register(adminGroup, huma.Operation{
 		OperationID: "set-album-cover-photo",
 		Method: http.MethodPut,
 		Path: "/albums/{id}/cover",

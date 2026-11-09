@@ -42,9 +42,9 @@
 - New naming convention for images - photos/ID/IMG_NAME.jpg
 - PhotoService's CreatePhoto method should create the re-sized versions of the new image (photos/ID/medium.jpg)
 
-## Fix JWT key. Use Env variable
+## Fix JWT key. Use Env variable (DONE!)
 
-## Fix Register user. User Role shouldn't be set on user creation, only an admin should be able to set it after creation on the UPDATE Endpoint
+## Fix Register user. User Role shouldn't be set on user creation, only an admin should be able to set it after creation on the UPDATE Endpoint (DONE!)
 
 ## Upload to Artifact registry
 

@@ -19,11 +19,21 @@ type UserResponse struct {
 	ID    uint `json:"id"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
-	Role     string `json:"role"`
+}
+
+type AdminUserResponse struct {
+	ID    uint `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Role string `json:"role"`
 }
 
 type UserOutput struct {
 	Body UserResponse
+}
+
+type AdminUserOutput struct {
+	Body AdminUserResponse
 }
 
 type GetUsersOutput struct {
@@ -39,7 +49,6 @@ type CreateUserInput struct {
 		Email    string `json:"email"`
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Role     string `json:"role"`
 	}
 }
 
