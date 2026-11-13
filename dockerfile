@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine as builder
+FROM golang:1.26-alpine3.23 as builder
 
 WORKDIR /app
 
@@ -16,7 +16,6 @@ FROM alpine:3.23
 WORKDIR /app
 
 COPY --from=builder app/main .
-COPY .env .
 
 EXPOSE 8080
 

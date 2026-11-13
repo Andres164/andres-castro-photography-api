@@ -46,9 +46,11 @@
 
 ## Fix Register user. User Role shouldn't be set on user creation, only an admin should be able to set it after creation on the UPDATE Endpoint (DONE!)
 
-## Upload to Artifact registry
+## Upload to Artifact registry (DONE!)
 
 ## Back-end MVP IS NOW COMPLETE !!!
+
+## Revert refactor that changed Get photo image to return a SignedURL back to returning the image Bytes over a stream
 
 ## Use CloudFlare
 
