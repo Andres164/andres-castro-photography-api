@@ -89,6 +89,12 @@ func main() {
 		Path: "/photos/{id}/image",
 	}, photoHandler.GetPhotoImage)
 
+	huma.Register(protectedGroup, huma.Operation{
+		OperationID: "get-photo-original-image",
+		Method: http.MethodGet,
+		Path: "/photos/{id}/original-image",
+	}, photoHandler.GetPhotoOriginalImage)
+
 	huma.Post(adminGroup, "/photos", photoHandler.CreatePhoto)
 	huma.Delete(adminGroup, "/photos/{id}", handlers.DeletePhoto)
 	huma.Patch(adminGroup, "/photos/{id}", handlers.UpdatePhoto)

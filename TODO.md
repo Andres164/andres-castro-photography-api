@@ -50,17 +50,19 @@
 
 ## Back-end MVP IS NOW COMPLETE !!!
 
-## Revert refactor that changed Get photo image to return a SignedURL back to returning the image Bytes over a stream
+## Revert refactor that changed Get photo image to return a SignedURL back to returning the image Bytes over a stream (DONE!)
+
+## Return watermarked images
 
 ## Use CloudFlare
+
+## Get original image endpoint with authentication and ownership validation
 
 ## Let SetCoverImage receive a null photo id to "unset" the cover image
 
 ## FIX: takenAt not being set at album creation
 
 ## Configure CSP on the hsts middleware
-
-## Return re-sized and watermarked image
 
 ## Make a cart
 

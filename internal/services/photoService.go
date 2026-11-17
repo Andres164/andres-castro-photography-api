@@ -63,9 +63,9 @@ func (s *PhotoService) CreatePhoto(
     }
 
     storageID := uuid.NewString()
-    baseStorageKey := fmt.Sprintf("photos/%s", storageID)
-    originalKey := baseStorageKey + "/original"
-    mediumKey := baseStorageKey + "/medium.jpg"
+    baseStorageKey := "photos/" + storageID
+    originalKey := baseStorageKey + "/" + string(VariantOriginal)
+    mediumKey := baseStorageKey + "/" + string(VariantMedium) + ".jpg"
 
     if err := s.storage.Upload(ctx, bytes.NewReader(original), originalKey); err != nil {
         return nil, fmt.Errorf("upload original: %w", err)
@@ -100,39 +100,39 @@ func (s *StorageService) Delete(ctx context.Context, objectName string) error {
     return nil
 }
 
-type ImageURLs struct {
-	OriginalURL string
-	MediumURL 	string
-}
+type ImageVariant string
+
+const (
+	VariantMedium ImageVariant = "medium"
+	VariantOriginal ImageVariant = "original"
+)
 
 func (s *PhotoService) GetPhotoImage(
 	ctx context.Context,
 	id uint,
-) (*ImageURLs, error) {
+	imageVariant ImageVariant,
+) (io.ReadCloser, string, error) {
 	var photo models.Photo
 
 	if err := database.DB.First(&photo, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrPhotoNotFound
+			return nil, "", ErrPhotoNotFound
 		}
-		return nil, err
+		return nil, "", err
 	}
 
-	originalKey := fmt.Sprintf("%s/original", photo.StorageKey)
-	mediumKey := fmt.Sprintf("%s/medium.jpg", photo.StorageKey)
-	originalURL, err := s.storage.Get(ctx, originalKey)
-	if err != nil {
-		return nil, fmt.Errorf("get signedURL: %w", err)
+	var storageKey string
+	if imageVariant == VariantOriginal {
+		storageKey = fmt.Sprintf("%s/%s", photo.StorageKey, VariantOriginal)
+	} else {
+		storageKey= fmt.Sprintf("%s/%s.jpg", photo.StorageKey, VariantMedium)
 	}
-	mediumURL, err := s.storage.Get(ctx, mediumKey)
+	reader, err := s.storage.Get(ctx, storageKey)
 	if err != nil {
-		return nil, fmt.Errorf("get signedURL: %w", err)
+		return nil, "", fmt.Errorf("get image: %w", err)
 	}
 
-	return &ImageURLs{
-		OriginalURL: originalURL,
-		MediumURL: mediumURL,
-	}, nil
+	return reader, photo.ContentType, nil
 }
 
 func (s *PhotoService) GetPhotoById(

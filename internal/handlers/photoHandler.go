@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"andres_castro_photography_api/internal/database"
 	"andres_castro_photography_api/internal/models"
@@ -80,27 +81,45 @@ func GetPhotoById(ctx context.Context, input *schemas.PhotoIdInput) (*schemas.Ge
 	}, nil
 }
 
-func (h* PhotoHandler) GetPhotoImage(
-    ctx context.Context,
-    input *schemas.PhotoIdInput,
-) (*schemas.GetPhotoImageOutput, error) {
-
-    imageURLs, err := h.service.GetPhotoImage(ctx, input.ID)
+func(h* PhotoHandler) getImage(
+	ctx context.Context,
+	input *schemas.PhotoIdInput,
+	imageVariant services.ImageVariant,
+) (*huma.StreamResponse, error) {
+    reader, contentType, err := h.service.GetPhotoImage(ctx, input.ID, imageVariant)
     if err != nil {
 		if errors.Is(err, services.ErrPhotoNotFound) {
-			return nil, huma.Error404NotFound("La proporcionada foto no existe", err)
+			return nil, huma.Error404NotFound("Foto no encontrada", err)
 		}
         return nil, huma.Error500InternalServerError("Error inesperado al obtener la imagen", err)
     }
 
+    return &huma.StreamResponse{
+        Body: func(humaCtx huma.Context) {
+            defer reader.Close()
 
-    return &schemas.GetPhotoImageOutput{
-		Body: schemas.PhotoImageResponse{
-			ID: input.ID,
-			OriginalURL: imageURLs.OriginalURL,
-			MediumURL: imageURLs.MediumURL,
-		},
-	}, nil
+            humaCtx.SetHeader("Content-Type", contentType)
+
+            _, err := io.Copy(humaCtx.BodyWriter(), reader)
+            if err != nil {
+                return
+            }
+        },
+    }, nil
+}
+
+func (h* PhotoHandler) GetPhotoImage(
+    ctx context.Context,
+    input *schemas.PhotoIdInput,
+) (*huma.StreamResponse, error) {
+	return h.getImage(ctx, input, services.VariantMedium)
+}
+
+func (h* PhotoHandler) GetPhotoOriginalImage(
+	ctx context.Context,
+	input *schemas.PhotoIdInput,
+) (*huma.StreamResponse, error) {
+	return h.getImage(ctx, input, services.VariantOriginal)
 }
 
 func GetPhotos(ctx context.Context, input *struct{}) (*schemas.GetPhotosOutput, error) {

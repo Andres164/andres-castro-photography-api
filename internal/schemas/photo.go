@@ -56,3 +56,4 @@ type PhotoImageResponse struct {
 type GetPhotoImageOutput struct {
 	Body PhotoImageResponse
 }
+

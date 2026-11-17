@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"time"
-
 	"cloud.google.com/go/storage"
 )
 
@@ -54,22 +52,17 @@ func (s *StorageService) Upload(
 func (s *StorageService) Get(
 	ctx context.Context,
 	objectName string,
-) (string, error) {
-	 signedURL, err := s.bucket.SignedURL(
-        objectName,
-        &storage.SignedURLOptions{
-            Scheme:  storage.SigningSchemeV4,
-            Method:  "GET",
-            Expires: time.Now().Add(15 * time.Minute),
-        },
-    )
-    if err != nil {
-        return "", fmt.Errorf(
-            "generate signed URL for object %q: %w",
+) (io.ReadCloser, error) {
+	objectH := s.bucket.Object(objectName)
+
+	reader, err := objectH.NewReader(ctx) // Change to WithJSONReads
+	if err != nil {
+		return nil, fmt.Errorf(
+            "create reader for object %q: %w",
             objectName,
             err,
         )
-    }
+	}
 
-	return signedURL, nil
+	return reader, nil
 }
